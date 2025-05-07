@@ -1,0 +1,395 @@
+// Configuración del generador del cliente Prisma
+generator client {
+  provider = "prisma-client-js" // Genera el cliente Prisma en JavaScript
+}
+
+// Configuración de la conexión a la base de datos
+datasource db {
+  provider = "mysql" // Usamos MySQL como motor de base de datos
+  url      = env("DATABASE_URL") // URL de conexión desde variable de entorno
+}
+
+// ------------------------------------------
+// MODELOS PARA AUTENTICACIÓN (NextAuth.js)
+// ------------------------------------------
+
+// Modelo para cuentas de autenticación externa (OAuth)
+model Account {
+  id                String  @id @default(cuid()) // ID único
+  userId            String // ID del usuario asociado
+  type              String // Tipo de cuenta (oauth, email, etc.)
+  provider          String // Proveedor (google, facebook, etc.)
+  providerAccountId String // ID en el proveedor externo
+  refresh_token     String? // Token de refresco
+  access_token      String? // Token de acceso
+  expires_at        Int? // Tiempo de expiración (timestamp)
+  token_type        String? // Tipo de token (Bearer, etc.)
+  scope             String? // Permisos concedidos
+  id_token          String? // Token JWT
+  session_state     String? // Estado de sesión
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Índices
+  @@unique([provider, providerAccountId]) // Unicidad compuesta
+}
+
+// Modelo para sesiones de usuario
+model Session {
+  id           String   @id @default(cuid()) // ID único
+  sessionToken String   @unique // Token de sesión
+  userId       String // ID del usuario
+  expires      DateTime // Fecha de expiración
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Modelo para tokens de verificación (email, reset password)
+model VerificationToken {
+  identifier String // Email o identificador
+  token      String   @unique // Token único
+  expires    DateTime // Fecha de expiración
+
+  // Índice compuesto
+  @@unique([identifier, token])
+}
+
+// ------------------------------------------
+// MODELO PRINCIPAL DE USUARIO
+// ------------------------------------------
+
+model User {
+  id            String    @id @default(cuid()) // ID único
+  name          String? // Nombre completo
+  email         String?   @unique // Email único
+  emailVerified DateTime? // Fecha de verificación
+  image         String? // URL de imagen
+  password      String? // Hash de contraseña (nullable para OAuth)
+  role          UserRole  @default(USER) // Rol del usuario
+  planId        String? // ID del plan de suscripción
+  createdAt     DateTime  @default(now()) // Fecha creación
+  updatedAt     DateTime  @updatedAt // Fecha actualización
+
+  // Relaciones 1:1 con perfiles específicos
+  owner        Owner?
+  veterinarian Veterinarian?
+  clinic       Clinic?
+  store        Store?
+
+  // Relaciones de autenticación
+  accounts Account[]
+  sessions Session[]
+
+  // Relación con el plan
+  plan Plan? @relation(fields: [planId], references: [id])
+}
+
+// Enum para roles de usuario
+enum UserRole {
+  USER // Dueño de mascota
+  VET // Veterinario individual
+  CLINIC // Clínica veterinaria
+  STORE // Tienda de mascotas
+  ADMIN // Administrador del sistema
+}
+
+// ------------------------------------------
+// MODELOS DE PLANES DE SUSCRIPCIÓN
+// ------------------------------------------
+
+model Plan {
+  id          String   @id @default(cuid()) // ID único
+  name        String // Nombre del plan
+  description String? // Descripción
+  price       Float // Precio mensual
+  duration    Int // Duración en días
+  isActive    Boolean  @default(true) // Si está disponible
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  users User[] // Usuarios con este plan
+}
+
+// ------------------------------------------
+// MODELOS DE PERFILES ESPECÍFICOS
+// ------------------------------------------
+
+// Perfil de dueño de mascota
+model Owner {
+  id               String    @id @default(cuid())
+  userId           String    @unique // Relación 1:1 con User
+  lastName         String // Apellido
+  dni              String?   @unique // Documento único
+  phone            String // Teléfono principal
+  secondaryPhone   String? // Teléfono secundario
+  city             String // Ciudad
+  neighborhood     String // Barrio/localidad
+  address          String? // Dirección exacta
+  birthDate        DateTime? // Fecha nacimiento
+  emergencyContact String? // Contacto emergencia
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relaciones
+  user         User          @relation(fields: [userId], references: [id])
+  pets         Pet[] // Mascotas asociadas
+  appointments Appointment[] // Citas asociadas
+}
+
+// Perfil de veterinario
+model Veterinarian {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  license         String?  @unique // Matrícula profesional
+  specialty       String // Especialidad principal
+  specialties     String // Otras especialidades
+  university      String? // Alma mater
+  experience      Int?     @default(0) // Años de experiencia
+  consultationFee Float? // Precio consulta
+  bio             String? // Biografía profesional
+  socialMedia     Json? // Redes sociales (estructura flexible)
+  isAvailable     Boolean  @default(true)
+  clinicId        String? // Clínica asociada (si aplica)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  user         User          @relation(fields: [userId], references: [id])
+  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
+  vaccines     Vaccine[] // Vacunas aplicadas
+  treatments   Treatment[] // Tratamientos realizados
+  // Removed duplicate field "treatments" to resolve the error
+  appointments Appointment[] // Citas agendadas
+}
+
+// Perfil de clínica veterinaria
+model Clinic {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  name         String // Nombre comercial
+  taxId        String?  @unique // RUC/CUIT/NIT
+  description  String? // Descripción servicios
+  phone        String // Teléfono principal
+  whatsapp     String? // WhatsApp para consultas
+  email        String? // Email contacto
+  website      String? // Sitio web
+  address      String // Dirección física
+  city         String // Ciudad
+  neighborhood String // Barrio
+  latitude     Float? // Coordenadas para mapas
+  longitude    Float?
+  openingHours String // Horario en formato JSON
+  isEmergency  Boolean  @default(false) // Atención emergencia 24/7
+  isVerified   Boolean  @default(false) // Verificado por plataforma
+  status       String   @default("active") // Estado operativo
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones
+  user          User            @relation(fields: [userId], references: [id])
+  veterinarians Veterinarian[] // Veterinarios asociados
+  services      ClinicService[] // Servicios ofrecidos
+  appointments  Appointment[] // Citas en la clínica
+  vaccines      Vaccine[] // Vacunas aplicadas en la clínica
+  treatments    Treatment[] // Tratamientos realizados en la clínica
+}
+
+// Perfil de tienda de mascotas
+model Store {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  name         String // Nombre comercial
+  taxId        String?  @unique // Identificador fiscal
+  description  String? // Descripción negocio
+  phone        String // Teléfono contacto
+  whatsapp     String? // WhatsApp pedidos
+  email        String? // Email contacto
+  website      String? // Sitio web
+  address      String // Dirección física
+  city         String // Ciudad
+  neighborhood String // Barrio
+  latitude     Float? // Para geolocalización
+  longitude    Float?
+  openingHours Json // Horario atención
+  delivery     Boolean  @default(false) // Si hace entregas
+  isVerified   Boolean  @default(false)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones
+  user     User           @relation(fields: [userId], references: [id])
+  products Product[] // Productos en venta
+  services StoreService[] // Servicios ofrecidos
+}
+
+// ------------------------------------------
+// MODELOS DE MASCOTAS Y SALUD
+// ------------------------------------------
+
+// Modelo de mascota
+model Pet {
+  id           String    @id @default(cuid())
+  name         String // Nombre mascota
+  plateCode    String // Código placa
+  species      String // Especie (perro, gato, etc.)
+  breed        String? // Raza
+  birthDate    DateTime? // Fecha nacimiento aproximada
+  gender       String? // Género
+  weight       Float? // Peso actual (kg)
+  color        String? // Color principal
+  markings     String? // Marcas distintivas
+  microchip    String?   @unique // Número microchip
+  isSterilized Boolean? // Si está esterilizado
+  photoUrl     String? // URL foto principal
+  ownerId      String // ID dueño principal
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relaciones
+  owner          Owner           @relation(fields: [ownerId], references: [id])
+  vaccines       Vaccine[]
+  treatments     Treatment[]
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+}
+
+// Modelo de vacuna
+model Vaccine {
+  id           String    @id @default(cuid())
+  name         String // Nombre vacuna
+  date         DateTime // Fecha aplicación
+  nextDate     DateTime? // Próxima dosis
+  batch        String? // Número de lote
+  manufacturer String? // Laboratorio
+  notes        String? // Observaciones
+  petId        String // Mascota
+  vetId        String? // Veterinario que aplicó
+  clinicId     String? // Clínica donde se aplicó
+
+  // Relaciones
+  pet          Pet           @relation(fields: [petId], references: [id])
+  veterinarian Veterinarian? @relation(fields: [vetId], references: [id])
+  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
+}
+
+// Modelo de tratamiento médico
+model Treatment {
+  id           String    @id @default(cuid())
+  name         String // Nombre tratamiento
+  description  String // Descripción
+  startDate    DateTime // Inicio
+  endDate      DateTime? // Fin estimado
+  diagnosis    String? // Diagnóstico asociado
+  medications  Json? // Medicamentos (estructurado)
+  instructions String? // Instrucciones cuidado
+  cost         Float? // Coste aproximado
+  petId        String // Mascota
+  vetId        String? // Veterinario responsable
+  clinicId     String? // Clínica
+
+  // Relaciones
+  pet          Pet           @relation(fields: [petId], references: [id])
+  veterinarian Veterinarian? @relation(fields: [vetId], references: [id])
+  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
+}
+
+// Modelo de cita médica
+model Appointment {
+  id           String            @id @default(cuid())
+  date         DateTime // Fecha/hora
+  duration     Int               @default(30) // Duración en minutos
+  reason       String // Motivo
+  status       AppointmentStatus @default(PENDING)
+  notes        String? // Notas previas
+  diagnosis    String? // Diagnóstico posterior
+  prescription String? // Receta médica
+  cost         Float? // Coste final
+  petId        String // Mascota
+  ownerId      String // Dueño
+  vetId        String? // Veterinario
+  clinicId     String? // Clínica
+  serviceId    String? // Servicio específico
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  // Relaciones
+  pet          Pet            @relation(fields: [petId], references: [id])
+  owner        Owner          @relation(fields: [ownerId], references: [id])
+  veterinarian Veterinarian?  @relation(fields: [vetId], references: [id])
+  clinic       Clinic?        @relation(fields: [clinicId], references: [id])
+  service      ClinicService? @relation(fields: [serviceId], references: [id])
+}
+
+// Estados posibles de una cita
+enum AppointmentStatus {
+  PENDING // Pendiente de confirmación
+  CONFIRMED // Confirmada
+  COMPLETED // Realizada
+  CANCELLED // Cancelada
+  NO_SHOW // No presentado
+}
+
+// Modelo de historial médico
+model MedicalRecord {
+  id    String   @id @default(cuid())
+  title String // Título registro
+  type  String // Tipo (consulta, vacuna, etc.)
+  date  DateTime @default(now()) // Fecha evento
+  notes String // Detalles
+  petId String // Mascota
+  // Relaciones
+  pet   Pet      @relation(fields: [petId], references: [id])
+}
+
+// ------------------------------------------
+// MODELOS DE SERVICIOS Y PRODUCTOS
+// ------------------------------------------
+
+// Servicio de clínica
+model ClinicService {
+  id          String  @id @default(cuid())
+  clinicId    String // Clínica que lo ofrece
+  name        String // Nombre servicio
+  description String? // Descripción
+  price       Float? // Precio base
+  duration    Int? // Duración minutos
+  isActive    Boolean @default(true) // Disponible
+
+  // Relaciones
+  clinic       Clinic        @relation(fields: [clinicId], references: [id])
+  appointments Appointment[] // Citas para este servicio
+}
+
+// Servicio de tienda
+model StoreService {
+  id          String  @id @default(cuid())
+  storeId     String // Tienda que lo ofrece
+  name        String // Nombre
+  description String?
+  price       Float?
+  duration    Int?
+  isActive    Boolean @default(true)
+
+  // Relaciones
+  store Store @relation(fields: [storeId], references: [id])
+}
+
+// Producto de tienda
+model Product {
+  id          String   @id @default(cuid())
+  storeId     String // Tienda
+  name        String // Nombre producto
+  description String? // Descripción
+  brand       String? // Marca
+  price       Float // Precio
+  isActive    Boolean  @default(true) // Disponible
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  store Store @relation(fields: [storeId], references: [id])
+}
