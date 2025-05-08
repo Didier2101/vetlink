@@ -11,7 +11,8 @@ export type ThemeMode = "light" | "dark" | "system";
 export const ThemeContext = createContext({
   themeMode: "system" as ThemeMode,
   isDarkMode: false,
-  setThemeMode: (mode: ThemeMode) => {},
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setThemeMode: (mode: ThemeMode) => {}, // Desactivando regla ESLint para este parámetro
   toggleDarkMode: () => {},
   theme: {
     bgColor: "",

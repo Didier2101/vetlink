@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +8,6 @@ import { Check, ShoppingCart } from "lucide-react";
 const SmartTagSection = () => {
   const { isDarkMode } = useTheme();
   const router = useRouter();
-  const [currentImage, setCurrentImage] = useState(0);
 
   const features = [
     "Notificación inmediata cuando alguien encuentre a tu mascota",
@@ -18,14 +16,6 @@ const SmartTagSection = () => {
     "Compatible con cualquier collar",
     "Tecnología avanzada con codigo QR",
   ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev === 0 ? 1 : 0));
-    }, 10000); // Cambia cada 5 segundos
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <section
@@ -77,48 +67,15 @@ const SmartTagSection = () => {
         {/* Contenedor de imágenes con efecto de volteo */}
         <div className="lg:w-1/2 flex justify-center relative ">
           <div className="relative w-auto h-auto perspective-1000 ">
-            {/* Imagen frontal */}
-            <div
-              className={`relative w-full h-full transition-transform duration-1000 transform-style-preserve-3d ${
-                currentImage === 0 ? "rotate-y-0" : "rotate-y-180"
-              }`}
-            >
+            <div className="relative w-full max-w-[280px] md:max-w-[400px] perspective-1000">
               <Image
-                src="/placa-frente.jpg"
-                alt="Frente de la placa inteligente VetLink"
+                src={"/placa-frente.jpg"}
+                alt="Placa Inteligente VetLink"
                 width={500}
                 height={500}
-                className=" shadow-2xl w-full h-auto object-contain rounded-[80px] md:rounded-[102px] backface-hidden"
-                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 35vw, 400px"
-                quality={90}
+                className=" shadow-2xl w-full h-auto object-contain rounded-[70px] md:rounded-[100px] backface-hidden"
               />
             </div>
-
-            {/* Imagen trasera */}
-            <div
-              className={`absolute top-0 left-0 w-full h-full transition-transform duration-1000 transform-style-preserve-3d ${
-                currentImage === 1 ? "rotate-y-0" : "rotate-y-180"
-              }`}
-            >
-              <Image
-                src="/placa-reverso.jpg"
-                alt="Respaldo de la placa inteligente VetLink"
-                width={500}
-                height={500}
-                className="w-full h-auto object-contain rounded-[70px] md:rounded-[80px] shadow-lg backface-hidden"
-                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 35vw, 400px"
-                quality={90}
-              />
-            </div>
-
-            {/* Efecto de brillo */}
-            <div
-              className={`absolute inset-0 ${
-                isDarkMode
-                  ? "bg-gradient-to-b from-teal-900/30 via-transparent to-teal-900/20"
-                  : "bg-gradient-to-b from-blue-600/20 via-transparent to-blue-600/10"
-              } pointer-events-none rounded-7xl`}
-            ></div>
           </div>
         </div>
       </div>
