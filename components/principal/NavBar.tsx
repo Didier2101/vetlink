@@ -11,7 +11,6 @@ import {
   Users,
   ShoppingBag,
   Tag,
-  ChevronDown,
   PawPrint,
 } from "lucide-react";
 import { useTheme, ThemeMode, ThemeIcons } from "./ThemeProvider";
@@ -19,7 +18,7 @@ import { useTheme, ThemeMode, ThemeIcons } from "./ThemeProvider";
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthHovered, setIsAuthHovered] = useState(false);
+  // const [isAuthHovered, setIsAuthHovered] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const { isDarkMode, themeMode, setThemeMode, theme } = useTheme();
 
@@ -155,40 +154,18 @@ const NavBar = () => {
           </div>
 
           {/* Auth Button */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsAuthHovered(true)}
-            onMouseLeave={() => setIsAuthHovered(false)}
-          >
+          <div className="relative">
             <button
-              className={`${theme.buttonBg} text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2`}
+              onClick={() => alert("¡Pronto disponible!")}
+              className={`flex items-center px-4 py-3 rounded-lg  ${
+                theme.textColor
+              } ${theme.hoverColor} ${
+                isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+              }`}
             >
-              <span>Cuenta</span>
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-300 ${
-                  isAuthHovered ? "rotate-180" : ""
-                }`}
-              />
+              <LogIn size={16} className="mr-2" />
+              <span>Iniciar Sesión</span>
             </button>
-
-            {isAuthHovered && (
-              <div
-                className={`absolute right-0 top-10 w-48 rounded-lg shadow-lg overflow-hidden ${
-                  isDarkMode ? "bg-gray-800" : "bg-white"
-                } transition-all duration-300 origin-top-right`}
-              >
-                <button
-                  onClick={() => alert("¡Pronto disponible!")}
-                  className={`flex items-center px-4 py-3 ${theme.textColor} ${
-                    theme.hoverColor
-                  } ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
-                >
-                  <LogIn size={16} className="mr-2" />
-                  <span>Iniciar Sesión</span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
 

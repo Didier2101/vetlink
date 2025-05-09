@@ -20,13 +20,11 @@ const HeroSection = () => {
             : "bg-gradient-to-b from-teal-50 to-white"
         } z-0`}
       ></div>
-
       {/* Background pattern/decoration */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-teal-500 filter blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 rounded-full bg-blue-500 filter blur-3xl"></div>
       </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center relative z-10 gap-8 lg:gap-12">
         <div className="md:w-1/2 mb-10 md:mb-0">
@@ -106,7 +104,7 @@ const HeroSection = () => {
         </div>
 
         <div className="md:w-1/2 flex justify-center">
-          <div className="relative w-full max-w-lg">
+          <div className="relative w-full  max-w-[280px] md:max-w-[400px]">
             <Image
               width={500}
               height={500}
@@ -127,18 +125,6 @@ const HeroSection = () => {
             ></div>
           </div>
         </div>
-      </div>
-
-      {/* Wave decoration at bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1440 120"
-          fill={isDarkMode ? "#111827" : "#ffffff"}
-          className="w-full h-12 md:h-20"
-        >
-          <path d="M0,64L80,80C160,96,320,128,480,122.7C640,117,800,75,960,64C1120,53,1280,75,1360,85.3L1440,96L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
-        </svg>
       </div>
     </section>
   );

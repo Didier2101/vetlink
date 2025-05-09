@@ -9,118 +9,66 @@ datasource db {
   url      = env("DATABASE_URL") // URL de conexión desde variable de entorno
 }
 
-// ------------------------------------------
-// MODELOS PARA AUTENTICACIÓN (NextAuth.js)
-// ------------------------------------------
-
-// Modelo para cuentas de autenticación externa (OAuth)
-model Account {
-  id                String  @id @default(cuid()) // ID único
-  userId            String // ID del usuario asociado
-  type              String // Tipo de cuenta (oauth, email, etc.)
-  provider          String // Proveedor (google, facebook, etc.)
-  providerAccountId String // ID en el proveedor externo
-  refresh_token     String? // Token de refresco
-  access_token      String? // Token de acceso
-  expires_at        Int? // Tiempo de expiración (timestamp)
-  token_type        String? // Tipo de token (Bearer, etc.)
-  scope             String? // Permisos concedidos
-  id_token          String? // Token JWT
-  session_state     String? // Estado de sesión
-
-  // Relaciones
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Índices
-  @@unique([provider, providerAccountId]) // Unicidad compuesta
+// Enum for plan categories
+enum Category {
+  owner
+  vet
+  clinic
+  store
 }
 
-// Modelo para sesiones de usuario
-model Session {
-  id           String   @id @default(cuid()) // ID único
-  sessionToken String   @unique // Token de sesión
-  userId       String // ID del usuario
-  expires      DateTime // Fecha de expiración
+model Plan {
+  id          Int      @id @default(autoincrement()) // ID único autoincremental
+  title       String // Título del plan
+  description String
+  price       Float // Price as a numeric value for calculations
+  period      String // e.g. "/mes", "/año"
+  category    Category
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Relaciones
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Relation to Features
+  features Feature[]
 }
 
-// Modelo para tokens de verificación (email, reset password)
-model VerificationToken {
-  identifier String // Email o identificador
-  token      String   @unique // Token único
-  expires    DateTime // Fecha de expiración
-
-  // Índice compuesto
-  @@unique([identifier, token])
+model Feature {
+  id     Int    @id @default(autoincrement()) // ID único autoincremental
+  name   String
+  plan   Plan   @relation(fields: [planId], references: [id])
+  planId Int
 }
 
-// ------------------------------------------
-// MODELO PRINCIPAL DE USUARIO
 // ------------------------------------------
 
 model User {
-  id            String    @id @default(cuid()) // ID único
-  name          String? // Nombre completo
-  email         String?   @unique // Email único
-  emailVerified DateTime? // Fecha de verificación
-  image         String? // URL de imagen
-  password      String? // Hash de contraseña (nullable para OAuth)
-  role          UserRole  @default(USER) // Rol del usuario
-  planId        String? // ID del plan de suscripción
-  createdAt     DateTime  @default(now()) // Fecha creación
-  updatedAt     DateTime  @updatedAt // Fecha actualización
+  id        Int      @id @default(autoincrement()) // ID único autoincremental
+  email     String   @unique // Email único
+  password  String // Hash de contraseña (nullable para OAuth)
+  // role      UserRole @default(USER) // Rol de usuario
+  planId    Int // ID del plan de suscripción
+  category  String? // Tipo de usuario (owner, vet, clinic, store)
+  createdAt DateTime @default(now()) // Fecha creación
+  updatedAt DateTime @updatedAt // Fecha actualización
 
   // Relaciones 1:1 con perfiles específicos
   owner        Owner?
   veterinarian Veterinarian?
   clinic       Clinic?
   store        Store?
-
-  // Relaciones de autenticación
-  accounts Account[]
-  sessions Session[]
-
-  // Relación con el plan
-  plan Plan? @relation(fields: [planId], references: [id])
 }
 
 // Enum para roles de usuario
-enum UserRole {
-  USER // Dueño de mascota
-  VET // Veterinario individual
-  CLINIC // Clínica veterinaria
-  STORE // Tienda de mascotas
-  ADMIN // Administrador del sistema
-}
-
-// ------------------------------------------
-// MODELOS DE PLANES DE SUSCRIPCIÓN
-// ------------------------------------------
-
-model Plan {
-  id          String   @id @default(cuid()) // ID único
-  name        String // Nombre del plan
-  description String? // Descripción
-  price       Float // Precio mensual
-  duration    Int // Duración en días
-  isActive    Boolean  @default(true) // Si está disponible
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relaciones
-  users User[] // Usuarios con este plan
-}
-
-// ------------------------------------------
-// MODELOS DE PERFILES ESPECÍFICOS
-// ------------------------------------------
+// enum UserRole {
+//   USER // Dueño de mascota
+//   ADMIN // Administrador del sistema
+// }
 
 // Perfil de dueño de mascota
 model Owner {
-  id               String    @id @default(cuid())
-  userId           String    @unique // Relación 1:1 con User
+  id               Int       @id @default(autoincrement()) // ID único autoincremental
+  userId           Int       @unique // Relación 1:1 con User
+  name             String // Nombre completo
   lastName         String // Apellido
   dni              String?   @unique // Documento único
   phone            String // Teléfono principal
@@ -141,8 +89,10 @@ model Owner {
 
 // Perfil de veterinario
 model Veterinarian {
-  id              String   @id @default(cuid())
-  userId          String   @unique
+  id              Int      @id @default(autoincrement()) // ID único autoincremental
+  userId          Int      @unique
+  name            String // Nombre completo
+  lastName        String // Apellido
   license         String?  @unique // Matrícula profesional
   specialty       String // Especialidad principal
   specialties     String // Otras especialidades
@@ -152,7 +102,7 @@ model Veterinarian {
   bio             String? // Biografía profesional
   socialMedia     Json? // Redes sociales (estructura flexible)
   isAvailable     Boolean  @default(true)
-  clinicId        String? // Clínica asociada (si aplica)
+  clinicId        Int? // Clínica asociada (si aplica)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -167,8 +117,8 @@ model Veterinarian {
 
 // Perfil de clínica veterinaria
 model Clinic {
-  id           String   @id @default(cuid())
-  userId       String   @unique
+  id           Int      @id @default(autoincrement()) // ID único autoincremental
+  userId       Int      @unique
   name         String // Nombre comercial
   taxId        String?  @unique // RUC/CUIT/NIT
   description  String? // Descripción servicios
@@ -199,8 +149,8 @@ model Clinic {
 
 // Perfil de tienda de mascotas
 model Store {
-  id           String   @id @default(cuid())
-  userId       String   @unique
+  id           Int      @id @default(autoincrement()) // ID único autoincremental
+  userId       Int      @unique
   name         String // Nombre comercial
   taxId        String?  @unique // Identificador fiscal
   description  String? // Descripción negocio
@@ -232,7 +182,7 @@ model Store {
 
 // Modelo de mascota
 model Pet {
-  id           String    @id @default(cuid())
+  id           Int       @id @default(autoincrement()) // ID único autoincremental
   name         String // Nombre mascota
   plateCode    String // Código placa
   species      String // Especie (perro, gato, etc.)
@@ -245,7 +195,7 @@ model Pet {
   microchip    String?   @unique // Número microchip
   isSterilized Boolean? // Si está esterilizado
   photoUrl     String? // URL foto principal
-  ownerId      String // ID dueño principal
+  ownerId      Int // ID dueño principal
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -259,16 +209,16 @@ model Pet {
 
 // Modelo de vacuna
 model Vaccine {
-  id           String    @id @default(cuid())
+  id           Int       @id @default(autoincrement()) // ID único autoincremental
   name         String // Nombre vacuna
   date         DateTime // Fecha aplicación
   nextDate     DateTime? // Próxima dosis
   batch        String? // Número de lote
   manufacturer String? // Laboratorio
   notes        String? // Observaciones
-  petId        String // Mascota
-  vetId        String? // Veterinario que aplicó
-  clinicId     String? // Clínica donde se aplicó
+  petId        Int // Mascota
+  vetId        Int? // Veterinario que aplicó
+  clinicId     Int? // Clínica donde se aplicó
 
   // Relaciones
   pet          Pet           @relation(fields: [petId], references: [id])
@@ -278,7 +228,7 @@ model Vaccine {
 
 // Modelo de tratamiento médico
 model Treatment {
-  id           String    @id @default(cuid())
+  id           Int       @id @default(autoincrement()) // ID único autoincremental
   name         String // Nombre tratamiento
   description  String // Descripción
   startDate    DateTime // Inicio
@@ -287,9 +237,9 @@ model Treatment {
   medications  Json? // Medicamentos (estructurado)
   instructions String? // Instrucciones cuidado
   cost         Float? // Coste aproximado
-  petId        String // Mascota
-  vetId        String? // Veterinario responsable
-  clinicId     String? // Clínica
+  petId        Int // Mascota
+  vetId        Int? // Veterinario responsable
+  clinicId     Int? // Clínica
 
   // Relaciones
   pet          Pet           @relation(fields: [petId], references: [id])
@@ -299,7 +249,7 @@ model Treatment {
 
 // Modelo de cita médica
 model Appointment {
-  id           String            @id @default(cuid())
+  id           Int               @id @default(autoincrement()) // ID único autoincremental
   date         DateTime // Fecha/hora
   duration     Int               @default(30) // Duración en minutos
   reason       String // Motivo
@@ -308,11 +258,11 @@ model Appointment {
   diagnosis    String? // Diagnóstico posterior
   prescription String? // Receta médica
   cost         Float? // Coste final
-  petId        String // Mascota
-  ownerId      String // Dueño
-  vetId        String? // Veterinario
-  clinicId     String? // Clínica
-  serviceId    String? // Servicio específico
+  petId        Int // Mascota
+  ownerId      Int // Dueño
+  vetId        Int? // Veterinario
+  clinicId     Int? // Clínica
+  serviceId    Int? // Servicio específico
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
@@ -335,12 +285,12 @@ enum AppointmentStatus {
 
 // Modelo de historial médico
 model MedicalRecord {
-  id    String   @id @default(cuid())
+  id    Int      @id @default(autoincrement()) // ID único autoincremental
   title String // Título registro
   type  String // Tipo (consulta, vacuna, etc.)
   date  DateTime @default(now()) // Fecha evento
   notes String // Detalles
-  petId String // Mascota
+  petId Int // Mascota
   // Relaciones
   pet   Pet      @relation(fields: [petId], references: [id])
 }
@@ -351,8 +301,8 @@ model MedicalRecord {
 
 // Servicio de clínica
 model ClinicService {
-  id          String  @id @default(cuid())
-  clinicId    String // Clínica que lo ofrece
+  id          Int     @id @default(autoincrement()) // ID único autoincremental
+  clinicId    Int // Clínica que lo ofrece
   name        String // Nombre servicio
   description String? // Descripción
   price       Float? // Precio base
@@ -366,8 +316,8 @@ model ClinicService {
 
 // Servicio de tienda
 model StoreService {
-  id          String  @id @default(cuid())
-  storeId     String // Tienda que lo ofrece
+  id          Int     @id @default(autoincrement()) // ID único autoincremental
+  storeId     Int // Tienda que lo ofrece
   name        String // Nombre
   description String?
   price       Float?
@@ -380,8 +330,8 @@ model StoreService {
 
 // Producto de tienda
 model Product {
-  id          String   @id @default(cuid())
-  storeId     String // Tienda
+  id          Int      @id @default(autoincrement()) // ID único autoincremental
+  storeId     Int // Tienda
   name        String // Nombre producto
   description String? // Descripción
   brand       String? // Marca

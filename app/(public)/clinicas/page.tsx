@@ -1,4 +1,4 @@
-import Clinicas from "@/components/principal/Clinicas";
+import Clinicas from "@/components/principal/clinica/Clinicas";
 
 const ClinicasPage = () => {
   return <Clinicas />;

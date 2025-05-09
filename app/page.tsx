@@ -1,3 +1,4 @@
+import { getPlan } from "@/actions/getPlanAction";
 import CTASection from "@/components/principal/CTASection";
 import HeroSection from "@/components/principal/HeroSection";
 import HowItWorks from "@/components/principal/HowItWorks";
@@ -7,13 +8,15 @@ import SmartTagSection from "@/components/principal/SmartTagSection";
 import TestimonialsSection from "@/components/principal/Testimonials";
 import React from "react";
 
-const HomePage = () => {
+const HomePage = async () => {
+  const plan = await getPlan();
+
   return (
     <div>
       <HeroSection />
       <ServicesSlider />
       <HowItWorks />
-      <PricingSlider />
+      <PricingSlider plan={plan} />
       <SmartTagSection />
       <TestimonialsSection />
       <CTASection />

@@ -1,17 +1,21 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { FC, useRef } from "react";
 import { useTheme } from "./ThemeProvider";
 import Slider from "react-slick";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import PlanCard from "./PlanCard";
-import { plans } from "@/data/plans";
+import PlanCard from "./placa/PlanCard";
+import { PlanType } from "@/types/planType";
 
-const PricingSlider = () => {
+interface PricingSliderProps {
+  plan: PlanType[];
+}
+
+const PricingSlider: FC<PricingSliderProps> = ({ plan }) => {
   const { isDarkMode, theme } = useTheme();
-  const sliderRef = useRef(null);
+  const sliderRef = useRef<Slider>(null);
 
   const settings = {
     dots: false,
@@ -37,11 +41,15 @@ const PricingSlider = () => {
   };
 
   const nextSlide = () => {
-    sliderRef.current.slickNext();
+    if (sliderRef.current) {
+      sliderRef.current.slickNext();
+    }
   };
 
   const prevSlide = () => {
-    sliderRef.current.slickPrev();
+    if (sliderRef.current) {
+      sliderRef.current.slickPrev();
+    }
   };
 
   return (
@@ -86,9 +94,9 @@ const PricingSlider = () => {
           </div>
 
           <Slider ref={sliderRef} {...settings} className="pricing-slider">
-            {plans.map((plan) => (
-              <div key={plan.id} className="px-2 outline-none">
-                <PlanCard plan={plan} isDarkMode={isDarkMode} />
+            {plan.map((pl) => (
+              <div key={pl.id} className="px-2 outline-none">
+                <PlanCard pl={pl} isDarkMode={isDarkMode} />
               </div>
             ))}
           </Slider>

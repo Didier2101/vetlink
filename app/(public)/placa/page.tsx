@@ -1,4 +1,4 @@
-import Placa from "@/components/principal/Placa";
+import Placa from "@/components/principal/placa/Placa";
 
 const PlacaPage = () => {
   return <Placa />;

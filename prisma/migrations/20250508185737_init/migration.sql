@@ -1,52 +1,34 @@
 -- CreateTable
-CREATE TABLE `Account` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `type` VARCHAR(191) NOT NULL,
-    `provider` VARCHAR(191) NOT NULL,
-    `providerAccountId` VARCHAR(191) NOT NULL,
-    `refresh_token` VARCHAR(191) NULL,
-    `access_token` VARCHAR(191) NULL,
-    `expires_at` INTEGER NULL,
-    `token_type` VARCHAR(191) NULL,
-    `scope` VARCHAR(191) NULL,
-    `id_token` VARCHAR(191) NULL,
-    `session_state` VARCHAR(191) NULL,
+CREATE TABLE `Plan` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+    `price` DOUBLE NOT NULL,
+    `period` VARCHAR(191) NOT NULL,
+    `category` ENUM('owner', 'vet', 'clinic', 'store') NOT NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Account_provider_providerAccountId_key`(`provider`, `providerAccountId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Session` (
-    `id` VARCHAR(191) NOT NULL,
-    `sessionToken` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `expires` DATETIME(3) NOT NULL,
+CREATE TABLE `Feature` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `planId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `VerificationToken` (
-    `identifier` VARCHAR(191) NOT NULL,
-    `token` VARCHAR(191) NOT NULL,
-    `expires` DATETIME(3) NOT NULL,
-
-    UNIQUE INDEX `VerificationToken_token_key`(`token`),
-    UNIQUE INDEX `VerificationToken_identifier_token_key`(`identifier`, `token`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `User` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NULL,
     `email` VARCHAR(191) NULL,
-    `emailVerified` DATETIME(3) NULL,
-    `image` VARCHAR(191) NULL,
     `password` VARCHAR(191) NULL,
-    `role` ENUM('USER', 'VET', 'CLINIC', 'STORE', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     `planId` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -56,23 +38,9 @@ CREATE TABLE `User` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Plan` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
-    `price` DOUBLE NOT NULL,
-    `duration` INTEGER NOT NULL,
-    `isActive` BOOLEAN NOT NULL DEFAULT true,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Owner` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
     `lastName` VARCHAR(191) NOT NULL,
     `dni` VARCHAR(191) NULL,
     `phone` VARCHAR(191) NOT NULL,
@@ -92,8 +60,8 @@ CREATE TABLE `Owner` (
 
 -- CreateTable
 CREATE TABLE `Veterinarian` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
     `license` VARCHAR(191) NULL,
     `specialty` VARCHAR(191) NOT NULL,
     `specialties` VARCHAR(191) NOT NULL,
@@ -103,7 +71,7 @@ CREATE TABLE `Veterinarian` (
     `bio` VARCHAR(191) NULL,
     `socialMedia` JSON NULL,
     `isAvailable` BOOLEAN NOT NULL DEFAULT true,
-    `clinicId` VARCHAR(191) NULL,
+    `clinicId` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -114,8 +82,8 @@ CREATE TABLE `Veterinarian` (
 
 -- CreateTable
 CREATE TABLE `Clinic` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `taxId` VARCHAR(191) NULL,
     `description` VARCHAR(191) NULL,
@@ -142,8 +110,8 @@ CREATE TABLE `Clinic` (
 
 -- CreateTable
 CREATE TABLE `Store` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `taxId` VARCHAR(191) NULL,
     `description` VARCHAR(191) NULL,
@@ -170,7 +138,7 @@ CREATE TABLE `Store` (
 
 -- CreateTable
 CREATE TABLE `Pet` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `plateCode` VARCHAR(191) NOT NULL,
     `species` VARCHAR(191) NOT NULL,
@@ -183,7 +151,7 @@ CREATE TABLE `Pet` (
     `microchip` VARCHAR(191) NULL,
     `isSterilized` BOOLEAN NULL,
     `photoUrl` VARCHAR(191) NULL,
-    `ownerId` VARCHAR(191) NOT NULL,
+    `ownerId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -193,23 +161,23 @@ CREATE TABLE `Pet` (
 
 -- CreateTable
 CREATE TABLE `Vaccine` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `date` DATETIME(3) NOT NULL,
     `nextDate` DATETIME(3) NULL,
     `batch` VARCHAR(191) NULL,
     `manufacturer` VARCHAR(191) NULL,
     `notes` VARCHAR(191) NULL,
-    `petId` VARCHAR(191) NOT NULL,
-    `vetId` VARCHAR(191) NULL,
-    `clinicId` VARCHAR(191) NULL,
+    `petId` INTEGER NOT NULL,
+    `vetId` INTEGER NULL,
+    `clinicId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Treatment` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
     `startDate` DATETIME(3) NOT NULL,
@@ -218,16 +186,16 @@ CREATE TABLE `Treatment` (
     `medications` JSON NULL,
     `instructions` VARCHAR(191) NULL,
     `cost` DOUBLE NULL,
-    `petId` VARCHAR(191) NOT NULL,
-    `vetId` VARCHAR(191) NULL,
-    `clinicId` VARCHAR(191) NULL,
+    `petId` INTEGER NOT NULL,
+    `vetId` INTEGER NULL,
+    `clinicId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Appointment` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `date` DATETIME(3) NOT NULL,
     `duration` INTEGER NOT NULL DEFAULT 30,
     `reason` VARCHAR(191) NOT NULL,
@@ -236,11 +204,11 @@ CREATE TABLE `Appointment` (
     `diagnosis` VARCHAR(191) NULL,
     `prescription` VARCHAR(191) NULL,
     `cost` DOUBLE NULL,
-    `petId` VARCHAR(191) NOT NULL,
-    `ownerId` VARCHAR(191) NOT NULL,
-    `vetId` VARCHAR(191) NULL,
-    `clinicId` VARCHAR(191) NULL,
-    `serviceId` VARCHAR(191) NULL,
+    `petId` INTEGER NOT NULL,
+    `ownerId` INTEGER NOT NULL,
+    `vetId` INTEGER NULL,
+    `clinicId` INTEGER NULL,
+    `serviceId` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -249,20 +217,20 @@ CREATE TABLE `Appointment` (
 
 -- CreateTable
 CREATE TABLE `MedicalRecord` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(191) NOT NULL,
     `type` VARCHAR(191) NOT NULL,
     `date` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `notes` VARCHAR(191) NOT NULL,
-    `petId` VARCHAR(191) NOT NULL,
+    `petId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `ClinicService` (
-    `id` VARCHAR(191) NOT NULL,
-    `clinicId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `clinicId` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `price` DOUBLE NULL,
@@ -274,8 +242,8 @@ CREATE TABLE `ClinicService` (
 
 -- CreateTable
 CREATE TABLE `StoreService` (
-    `id` VARCHAR(191) NOT NULL,
-    `storeId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `storeId` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `price` DOUBLE NULL,
@@ -287,8 +255,8 @@ CREATE TABLE `StoreService` (
 
 -- CreateTable
 CREATE TABLE `Product` (
-    `id` VARCHAR(191) NOT NULL,
-    `storeId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `storeId` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `brand` VARCHAR(191) NULL,
@@ -301,13 +269,7 @@ CREATE TABLE `Product` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_planId_fkey` FOREIGN KEY (`planId`) REFERENCES `Plan`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Feature` ADD CONSTRAINT `Feature_planId_fkey` FOREIGN KEY (`planId`) REFERENCES `Plan`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Owner` ADD CONSTRAINT `Owner_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

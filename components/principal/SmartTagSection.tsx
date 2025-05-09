@@ -2,8 +2,8 @@
 
 import { useTheme } from "./ThemeProvider";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Check, ShoppingCart } from "lucide-react";
+import ImagePlaca from "@/src/ui/ImagePlaca";
 
 const SmartTagSection = () => {
   const { isDarkMode } = useTheme();
@@ -66,16 +66,8 @@ const SmartTagSection = () => {
 
         {/* Contenedor de imágenes con efecto de volteo */}
         <div className="lg:w-1/2 flex justify-center relative ">
-          <div className="relative w-auto h-auto perspective-1000 ">
-            <div className="relative w-full max-w-[280px] md:max-w-[400px] perspective-1000">
-              <Image
-                src={"/placa-frente.jpg"}
-                alt="Placa Inteligente VetLink"
-                width={500}
-                height={500}
-                className=" shadow-2xl w-full h-auto object-contain rounded-[70px] md:rounded-[100px] backface-hidden"
-              />
-            </div>
+          <div className="relative w-auto h-auto ">
+            <ImagePlaca />
           </div>
         </div>
       </div>

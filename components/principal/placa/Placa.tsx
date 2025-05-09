@@ -14,8 +14,8 @@ import {
   Bell,
   Home,
 } from "lucide-react";
-import Image from "next/image";
-import PricingSlider from "./PricingSlider";
+import ImagePlaca from "@/src/ui/ImagePlaca";
+// import PricingSlider from "../PricingSlider";
 
 const Placa = () => {
   const { isDarkMode, theme } = useTheme();
@@ -31,8 +31,8 @@ const Placa = () => {
     },
     {
       icon: <MapPin size={24} />,
-      title: "Geolocalización",
-      description: "Reportes de ubicación cuando alguien escanee la placa",
+      title: "Localización Instantánea",
+      description: "Localiza a tu mascota por medio de codigo QR",
     },
     {
       icon: <Smartphone size={24} />,
@@ -147,29 +147,10 @@ const Placa = () => {
                   </li>
                 ))}
               </ul>
-
-              <button
-                onClick={() =>
-                  document
-                    .getElementById("plans-section")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-                className={`${theme.buttonBg} text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity`}
-              >
-                Ver Planes y Precios
-              </button>
             </div>
 
             <div className="md:w-1/2 flex justify-center">
-              <div className="relative w-full max-w-[280px] md:max-w-[400px] perspective-1000">
-                <Image
-                  src={"/placa-frente.jpg"}
-                  alt="Placa Inteligente VetLink"
-                  width={500}
-                  height={500}
-                  className=" shadow-2xl w-full h-auto object-contain rounded-[70px] md:rounded-[100px] backface-hidden"
-                />
-              </div>
+              <ImagePlaca />
             </div>
           </div>
         </div>
@@ -364,7 +345,7 @@ const Placa = () => {
           </div>
 
           {/* Componente de planes de precios */}
-          <PricingSlider />
+          {/* <PricingSlider /> */}
 
           <div
             className={`mt-8 p-6 rounded-lg max-w-4xl mx-auto ${
