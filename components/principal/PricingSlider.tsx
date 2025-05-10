@@ -11,7 +11,7 @@ import { plans } from "@/data/plans";
 
 const PricingSlider = () => {
   const { isDarkMode, theme } = useTheme();
-  const sliderRef = useRef(null);
+ const sliderRef = useRef<Slider>(null); // Especifica el tipo aquí
 
   const settings = {
     dots: false,
