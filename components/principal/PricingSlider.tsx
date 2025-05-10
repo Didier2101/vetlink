@@ -37,12 +37,18 @@ const PricingSlider = () => {
   };
 
   const nextSlide = () => {
-    sliderRef.current.slickNext();
+    if (sliderRef.current) {
+      sliderRef.current.slickNext();
+    }
   };
 
   const prevSlide = () => {
-    sliderRef.current.slickPrev();
+    if (sliderRef.current) {
+      sliderRef.current.slickPrev();
+    }
   };
+
+
 
   return (
     <section className={`py-16 ${isDarkMode ? "bg-gray-900" : "bg-white"}`}>
