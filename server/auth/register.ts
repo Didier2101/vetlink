@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "@/src/lib/prisma";
 import { hash } from "bcryptjs";
 
@@ -46,13 +48,7 @@ export const createUser = async (data: UserData) => {
                 category: data.category,
             },
         });
-        console.log('Usuario creado exitosamente:', {
-            id: user.id,
-            email: user.email,
-            planId: user.planId,
-            category: user.category,
-            createdAt: user.createdAt,
-        });
+
 
         return {
             success: true,

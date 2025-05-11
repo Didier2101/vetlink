@@ -62,26 +62,52 @@ const RegistroForm = () => {
     }
   }, [setValue]);
 
+  // Función para el formulario de registro
   const onSubmit = async (data: RegistroFormData) => {
     try {
+      // Verificamos que planInfo esté definido y tenga los campos necesarios
+      if (!planInfo || !planInfo.planId || !planInfo.category) {
+        console.error("Error: Información del plan incompleta", planInfo);
+        alert("Error: Falta información del plan de suscripción");
+        return;
+      }
+
+      // Convertimos planId a número para asegurar el tipo correcto
+      const planIdNumerico = Number(planInfo.planId);
+
       // Preparamos los datos de registro
       const registroData = {
         email: data.email,
         password: data.password,
-        planId: Number(planInfo.planId),
+        planId: planIdNumerico,
         category: planInfo.category,
       };
 
       // Mostramos en consola los datos que se enviarán y sus tipos
       console.log("DATOS DEL FORMULARIO:");
-      console.log("Email:", data.email, "- Tipo:", typeof data.email);
-      console.log("Password:", "******", "- Tipo:", typeof data.password);
-      console.log("PlanId:", data.planId, "- Tipo:", typeof data.planId);
+      console.log(
+        "Email:",
+        registroData.email,
+        "- Tipo:",
+        typeof registroData.email
+      );
+      console.log(
+        "Password:",
+        "******",
+        "- Tipo:",
+        typeof registroData.password
+      );
+      console.log(
+        "PlanId:",
+        registroData.planId,
+        "- Tipo:",
+        typeof registroData.planId
+      );
       console.log(
         "Category:",
-        planInfo.category,
+        registroData.category,
         "- Tipo:",
-        typeof planInfo.category
+        typeof registroData.category
       );
 
       // Mostramos el objeto completo para debug
@@ -91,17 +117,11 @@ const RegistroForm = () => {
         registroDatos: registroData,
       });
 
-      // Comentamos temporalmente la llamada a createUser para aislar el problema
-      // const result = await createUser(registroData);
+      // Llamada al servidor para crear el usuario
+      const result = await createUser(registroData);
 
-      // Simulamos éxito para verificar que el botón funciona correctamente
-      alert(
-        "Formulario enviado correctamente - Revisa la consola para ver los datos"
-      );
-
-      /* Comentamos temporalmente el resto del código para simplificar la depuración
       if (!result.success) {
-        // Show error message
+        // Mostrar mensaje de error
         Swal.fire({
           title: "Error",
           text: result.message || "Ocurrió un error durante el registro",
@@ -109,44 +129,21 @@ const RegistroForm = () => {
           confirmButtonText: "Intentar de nuevo",
         });
       } else {
-        // Show success message and redirect
+        // Mostrar mensaje de éxito y redireccionar
         Swal.fire({
           title: "¡Registro exitoso!",
           text: "Tu cuenta ha sido creada correctamente",
           icon: "success",
           confirmButtonText: "Continuar",
           confirmButtonColor: "#3085d6",
-        }).then((result) => {
-          // Redirect based on category when user clicks the button
-          if (result.isConfirmed) {
-            console.log("Redirigiendo según categoría:", planInfo.category);
-
-            switch (planInfo.category) {
-              case "owner":
-                router.push("/perfil/dueno");
-                break;
-              case "vet":
-                router.push("/perfil/veterinario");
-                break;
-              case "clinic":
-                router.push("/perfil/clinica");
-                break;
-              case "store":
-                router.push("/perfil/tienda");
-                break;
-              default:
-                router.push("/dashboard");
-            }
-          }
         });
+        router.push("/auth/login");
       }
-      */
     } catch (error) {
       console.error("Error en registro:", error);
       alert("Error en el formulario - Revisa la consola para más detalles");
     }
   };
-
   return (
     <div
       className={`min-h-screen py-24 md:py-24 lg:py-32 ${

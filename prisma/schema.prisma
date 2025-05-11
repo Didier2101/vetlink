@@ -47,7 +47,7 @@ model User {
   password  String // Hash de contraseña (nullable para OAuth)
   // role      UserRole @default(USER) // Rol de usuario
   planId    Int // ID del plan de suscripción
-  category  String? // Tipo de usuario (owner, vet, clinic, store)
+  category  Category // Tipo de usuario (owner, vet, clinic, store)
   createdAt DateTime @default(now()) // Fecha creación
   updatedAt DateTime @updatedAt // Fecha actualización
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/principal/ThemeProvider";
-import NavBar from "@/components/principal/NavBar";
-import Footer from "@/components/principal/Footer";
-import MobileBottomNav from "@/components/principal/MobileBottomNav";
+// import FloatingThemeToggle from "@/src/ui/FloatingThemeToggle";
+// import NavBar from "@/components/principal/NavBar";
+// import Footer from "@/components/principal/Footer";
+// import MobileBottomNav from "@/components/principal/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: "VetLink - Plataforma Veterinaria",
@@ -19,10 +20,11 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <NavBar />
+          {/* <NavBar /> */}
           <main>{children}</main>
-          <MobileBottomNav />
-          <Footer />
+          {/* <FloatingThemeToggle position="top-right" /> */}
+          {/* <MobileBottomNav /> */}
+          {/* <Footer /> */}
         </ThemeProvider>
       </body>
     </html>
