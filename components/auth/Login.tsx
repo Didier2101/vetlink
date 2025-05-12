@@ -25,8 +25,6 @@ const Login = () => {
   });
 
   const onSubmit = async (loginData: LoginFormData) => {
-    console.log("Datos de inicio de sesión:", loginData);
-
     try {
       const result = await login(loginData); // Asegúrate de tener esta función definida
 
@@ -42,19 +40,21 @@ const Login = () => {
           icon: "success",
           title: "Éxito",
           text: result.message,
+          showConfirmButton: false,
+          timer: 1500,
         });
         switch (result.category) {
           case "owner":
-            router.push("/owner");
+            router.push("/perfiles/owner");
             break;
           case "vet":
-            router.push("/vet");
+            router.push("/perfiles/vet");
             break;
           case "clinic":
-            router.push("/clinic");
+            router.push("/perfiles/clinic");
             break;
           case "store":
-            router.push("/store");
+            router.push("/perfiles/store");
             break;
           default:
             router.push("/");

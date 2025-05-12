@@ -31,7 +31,8 @@ export default function LogoutButton() {
           title: "Sesión cerrada",
           text: "Has cerrado sesión correctamente.",
           icon: "success",
-          confirmButtonColor: "#3b82f6", // azul
+          showConfirmButton: false,
+          timer: 1500,
           background: isDarkMode ? "#1f2937" : "#fff",
           color: isDarkMode ? "#f9fafb" : "#111827",
         });

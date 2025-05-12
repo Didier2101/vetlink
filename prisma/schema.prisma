@@ -42,14 +42,14 @@ model Feature {
 // ------------------------------------------
 
 model User {
-  id        Int      @id @default(autoincrement()) // ID único autoincremental
-  email     String   @unique // Email único
-  password  String // Hash de contraseña (nullable para OAuth)
-  // role      UserRole @default(USER) // Rol de usuario
-  planId    Int // ID del plan de suscripción
-  category  Category // Tipo de usuario (owner, vet, clinic, store)
-  createdAt DateTime @default(now()) // Fecha creación
-  updatedAt DateTime @updatedAt // Fecha actualización
+  id                Int      @id @default(autoincrement()) // ID único autoincremental
+  email             String   @unique // Email único
+  password          String // Hash de contraseña (nullable para OAuth)
+  planId            Int // ID del plan de suscripción
+  category          Category // Tipo de usuario (owner, vet, clinic, store)
+  isProfileComplete Boolean  @default(false) // Si el perfil está completo
+  createdAt         DateTime @default(now()) // Fecha creación
+  updatedAt         DateTime @updatedAt // Fecha actualización
 
   // Relaciones 1:1 con perfiles específicos
   owner        Owner?
@@ -58,28 +58,20 @@ model User {
   store        Store?
 }
 
-// Enum para roles de usuario
-// enum UserRole {
-//   USER // Dueño de mascota
-//   ADMIN // Administrador del sistema
-// }
-
 // Perfil de dueño de mascota
 model Owner {
-  id               Int       @id @default(autoincrement()) // ID único autoincremental
-  userId           Int       @unique // Relación 1:1 con User
+  id               Int      @id @default(autoincrement()) // ID único autoincremental
+  userId           Int      @unique // Relación 1:1 con User
   name             String // Nombre completo
   lastName         String // Apellido
-  dni              String?   @unique // Documento único
   phone            String // Teléfono principal
   secondaryPhone   String? // Teléfono secundario
   city             String // Ciudad
   neighborhood     String // Barrio/localidad
   address          String? // Dirección exacta
-  birthDate        DateTime? // Fecha nacimiento
   emergencyContact String? // Contacto emergencia
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // Relaciones
   user         User          @relation(fields: [userId], references: [id])
@@ -96,6 +88,8 @@ model Veterinarian {
   license         String?  @unique // Matrícula profesional
   specialty       String // Especialidad principal
   specialties     String // Otras especialidades
+  city            String // Ciudad
+  neighborhood    String // Barrio
   university      String? // Alma mater
   experience      Int?     @default(0) // Años de experiencia
   consultationFee Float? // Precio consulta
