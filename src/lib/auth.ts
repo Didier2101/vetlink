@@ -1,8 +1,8 @@
+// lib/auth.ts
 "use server"
 
-// Archivo: /lib/auth.ts
 import { cookies } from 'next/headers';
-import { decrypt } from './crypto';
+import { decryptEdge } from './edge-crypto'; // Tu función original de Node.js crypto
 
 /**
  * Obtiene los datos de sesión del usuario actual
@@ -15,11 +15,15 @@ export async function getSession() {
     if (!sessionCookie?.value) {
         return null;
     }
-
     try {
-        const decryptedSession = await decrypt(sessionCookie.value);
-        return JSON.parse(decryptedSession);
+        const decryptedSession = await decryptEdge(sessionCookie.value);
+        const parsedSession = JSON.parse(decryptedSession);
+        return parsedSession;
     } catch (error) {
+        if (error instanceof Error) {
+        } else {
+            console.error('❌ ERROR AL DESENCRIPTAR:', error);
+        }
         console.error('Error al obtener sesión:', error);
         return null;
     }

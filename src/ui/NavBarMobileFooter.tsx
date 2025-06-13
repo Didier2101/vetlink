@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { useTheme } from "@/components/principal/ThemeProvider";
 import { NavLink } from "../data/navbarLinks";
+import { useTheme } from "@/components/public/auth/ThemeProvider";
 
 interface NavBarMobileFooterProps {
   links: NavLink[];

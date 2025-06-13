@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 const HomePage = async () => {
-  return redirect("/inicio");
+  redirect("/inicio");
 };
 
 export default HomePage;

@@ -1,7 +1,13 @@
-import Placa from "@/components/principal/placa/Placa";
+import Placa from "@/components/public/principal/placa/Placa";
+import Loading from "@/src/ui/Loading";
+import { Suspense } from "react";
 
 const PlacaPage = () => {
-  return <Placa />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <Placa />
+    </Suspense>
+  );
 };
 
 export default PlacaPage;

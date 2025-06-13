@@ -1,16 +1,18 @@
-import { Category } from "@prisma/client";
+import { PlanRole } from "@prisma/client";
 
 export interface PlanType {
     id: number;
     title: string;
     description: string;
     price: number;
-    period: string; // e.g., "/mes"
-    category: Category;
+    period: string; // e.g., "mensual"
+    trialPeriodDays: number | null; // e.g., 14 for 14 days
     isActive: boolean;
+    isFree: boolean;
+    maxPets: number;
     createdAt: Date;
-    updatedAt: Date;
-    features: FeatureType[];
+    role: PlanRole;
+    features?: FeatureType[]; // Hacer opcional si no siempre está presente
 }
 
 export interface FeatureType {

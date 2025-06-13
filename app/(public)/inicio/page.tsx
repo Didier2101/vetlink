@@ -1,26 +1,33 @@
-import { getPlan } from "@/actions/getPlanAction";
-import CTASection from "@/components/principal/CTASection";
-import HeroSection from "@/components/principal/HeroSection";
-import HowItWorks from "@/components/principal/HowItWorks";
-import PricingSlider from "@/components/principal/PricingSlider";
-import ServicesSlider from "@/components/principal/ServicesSlider";
-import SmartTagSection from "@/components/principal/SmartTagSection";
-import TestimonialsSection from "@/components/principal/Testimonials";
+import HeroSection from "@/components/public/principal/HeroSection";
+import PricingSlider from "@/components/public/principal/PricingSlider";
+import ServicesSlider from "@/components/public/principal/ServicesSlider";
+import SmartTagSection from "@/components/public/principal/SmartTagSection";
+import TestimonialsSection from "@/components/public/principal/testimonios/Testimonials";
+import { prisma } from "@/src/lib/prisma";
+import Loading from "@/src/ui/Loading";
+import React, { Suspense } from "react";
 
-const inicioPage = async () => {
-  const plan = await getPlan();
+const InicioPage = async () => {
+  const plans = await prisma.plans.findMany({
+    where: {
+      isActive: true,
+    },
+    include: {
+      features: true,
+    },
+  });
+
+
 
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       <HeroSection />
       <ServicesSlider />
-      <HowItWorks />
-      <PricingSlider plan={plan} />
+      <PricingSlider plans={plans} />
       <SmartTagSection />
       <TestimonialsSection />
-      <CTASection />
-    </div>
+    </Suspense>
   );
 };
 
-export default inicioPage;
+export default InicioPage;

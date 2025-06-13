@@ -1,31 +1,31 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/principal/ThemeProvider";
-// import FloatingThemeToggle from "@/src/ui/FloatingThemeToggle";
-// import NavBar from "@/components/principal/NavBar";
-// import Footer from "@/components/principal/Footer";
-// import MobileBottomNav from "@/components/principal/MobileBottomNav";
+import { roboto } from "@/src/lib/fonts";
+// import NavBar from "@/components/public/principal/navbar/NavBar";
+// import { getSession } from "@/src/lib/auth";
+// import PrivateHeader from "@/components/privado/PrivateHeader";
 
 export const metadata: Metadata = {
   title: "VetLink - Plataforma Veterinaria",
   description: "La mejor plataforma para el cuidado de tus mascotas",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  // const session = await getSession();
+
   return (
     <html lang="es" suppressHydrationWarning>
-      <body>
-        <ThemeProvider>
-          {/* <NavBar /> */}
-          <main>{children}</main>
-          {/* <FloatingThemeToggle position="top-right" /> */}
-          {/* <MobileBottomNav /> */}
-          {/* <Footer /> */}
-        </ThemeProvider>
+      <body className={`${roboto.className}`}>
+        <main className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 ">
+          {/* {!session ? <NavBar /> : <PrivateHeader />} */}
+
+          {children}
+        </main>
       </body>
     </html>
   );

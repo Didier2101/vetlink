@@ -1,339 +1,291 @@
-// Configuración del generador del cliente Prisma
 generator client {
-  provider = "prisma-client-js" // Genera el cliente Prisma en JavaScript
+  provider = "prisma-client-js"
 }
 
-// Configuración de la conexión a la base de datos
 datasource db {
-  provider = "mysql" // Usamos MySQL como motor de base de datos
-  url      = env("DATABASE_URL") // URL de conexión desde variable de entorno
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
-// Enum for plan categories
-enum Category {
-  owner
-  vet
+model features {
+  id       Int       @id @default(autoincrement())
+  name     String    @db.VarChar(255)
+  createAt DateTime? @default(now()) @db.DateTime(0)
+  planId   Int
+  plans    plans     @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "features_ibfk_1")
+
+  @@index([planId], map: "planId")
+}
+
+model plans {
+  id              Int           @id @default(autoincrement())
+  title           String        @db.VarChar(255)
+  description     String        @db.Text
+  price           Float         @db.Float
+  period          BillingPeriod
+  trialPeriodDays Int?          @default(0)
+  isFree          Boolean       @default(false)
+  maxPets         Int           @default(1)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now()) @db.DateTime(0)
+  role            PlanRole
+  features        features[]
+  users           users[]
+}
+
+model users {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique(map: "email") @db.VarChar(255)
+  password          String    @db.VarChar(255)
+  planId            Int
+  terms             Boolean   @default(false)
+  isProfileComplete Boolean?  @default(false)
+  createdAt         DateTime  @default(now()) @db.DateTime(0)
+  isTrial           Boolean?  @default(true)
+  trialStartedAt    DateTime? @default(now()) @db.DateTime(0)
+  trialEndsAt       DateTime? @db.DateTime(0)
+  planStartedAt     DateTime? @db.DateTime(0)
+  planExpiresAt     DateTime? @default(now()) @db.DateTime(0)
+
+  // Nuevos campos para verificación de email
+  emailConfirmed    Boolean   @default(false)
+  confirmationToken String?   @db.VarChar(255)
+  tokenExpiresAt    DateTime? @db.DateTime(0)
+
+  owners owners?
+  vets   vets?
+  plans  plans   @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_ibfk_1")
+
+  @@index([planId], map: "planId")
+}
+
+model owners {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  lastName       String   @db.VarChar(255)
+  phone          String   @db.VarChar(50)
+  secondaryPhone String?  @db.VarChar(50)
+  city           String   @db.VarChar(255)
+  neighborhood   String   @db.VarChar(255)
+  address        String   @db.VarChar(255)
+  createdAt      DateTime @default(now()) @db.DateTime(0)
+  updatedAt      DateTime @db.DateTime(0)
+  userId         Int      @unique(map: "userId")
+  users          users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "owners_ibfk_1")
+  pets           pets[]
+}
+
+model vets {
+  id               Int         @id @default(autoincrement())
+  profilePicture   String?     @db.VarChar(255)
+  description      String?     @db.Text
+  consultationFee  Decimal?    @db.Decimal(10, 2)
+  emergencyService Boolean     @default(false)
+  homeVisit        Boolean     @default(false)
+  licenseNumber    String      @unique @db.VarChar(50)
+  name             String      @db.VarChar(100)
+  lastName         String      @db.VarChar(100)
+  phone            String      @db.VarChar(20)
+  specialty        String      @db.VarChar(100)
+  clinicName       String      @db.VarChar(255)
+  clinicAddress    String      @db.VarChar(255)
+  city             String      @db.VarChar(100)
+  isActive         Boolean     @default(true)
+  latitude         Decimal?    @db.Decimal(9, 6)
+  longitude        Decimal?    @db.Decimal(9, 6)
+  rating           Float?
+  reviewCount      Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  documents        documents[]
+  attentions       pet_vets[]
+  review           review[]
+  schedule         schedule[]
+  vaccines         vaccines[]
+  userId           Int         @unique(map: "userId")
+  users            users       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vets_ibfk_1")
+
+  @@index([licenseNumber], map: "idx_license")
+  @@index([city], map: "idx_city")
+}
+
+model pets {
+  id              Int           @id @default(autoincrement())
+  name            String        @db.VarChar(255)
+  species         String        @db.VarChar(100)
+  breed           String        @db.VarChar(100)
+  sex             String        @db.VarChar(20)
+  birthDate       DateTime      @db.DateTime(0)
+  color           String        @db.VarChar(100)
+  photo           String?       @db.Text
+  microchipNumber String?       @db.VarChar(100)
+  tattooCode      String?       @db.VarChar(100)
+  passportNumber  String?       @db.VarChar(100)
+  codeVetlink     String        @unique @db.VarChar(100)
+  sterilized      Boolean       @default(false)
+  allergies       String?       @db.Text
+  chronicDiseases String?       @db.Text
+  disabilities    String?       @db.Text
+  bloodType       String?       @db.VarChar(20)
+  favoriteFood    String        @db.VarChar(100)
+  behaviorNotes   String?       @db.Text
+  feedingSchedule String?       @db.Text
+  diet            String?       @db.VarChar(100)
+  activityLevel   String        @db.VarChar(50)
+  aggressive      String        @db.VarChar(20)
+  ownerId         Int
+  createdAt       DateTime      @default(now()) @db.DateTime(0)
+  updatedAt       DateTime      @db.DateTime(0)
+  dewormings      dewormings[]
+  documents       documents[]
+  medications     medications[]
+  attentions      pet_vets[]
+  owner           owners        @relation(fields: [ownerId], references: [id])
+  vaccines        vaccines[]
+
+  @@index([ownerId], map: "ownerId")
+}
+
+model dewormings {
+  id       Int       @id @default(autoincrement())
+  petId    Int
+  product  String    @db.VarChar(255)
+  date     DateTime  @db.DateTime(0)
+  nextDate DateTime? @db.DateTime(0)
+  notes    String?   @db.Text
+  pet      pets      @relation(fields: [petId], references: [id])
+
+  @@index([petId], map: "petId")
+}
+
+model medications {
+  id           Int       @id @default(autoincrement())
+  petId        Int
+  name         String    @db.VarChar(255)
+  dosage       String    @db.VarChar(100)
+  frequency    String    @db.VarChar(100)
+  startDate    DateTime  @db.DateTime(0)
+  endDate      DateTime? @db.DateTime(0)
+  prescribedBy String?   @db.VarChar(255)
+  notes        String?   @db.Text
+  pet          pets      @relation(fields: [petId], references: [id])
+
+  @@index([petId], map: "petId")
+}
+
+model pet_vets {
+  id       Int      @id @default(autoincrement())
+  petId    Int
+  vetId    Int
+  clinicId Int?
+  date     DateTime @default(now())
+  reason   String   @db.VarChar(255)
+  notes    String?  @db.Text
+  clinic   clinics? @relation(fields: [clinicId], references: [id])
+  pet      pets     @relation(fields: [petId], references: [id])
+  vet      vets     @relation(fields: [vetId], references: [id])
+
+  @@unique([petId, vetId, date], name: "unique_attention")
+  @@index([petId, vetId], map: "idx_pet_vet")
+  @@index([clinicId], map: "pet_vets_clinicId_fkey")
+  @@index([vetId], map: "pet_vets_vetId_fkey")
+}
+
+model clinics {
+  id         Int        @id @default(autoincrement())
+  name       String     @db.VarChar(255)
+  address    String     @db.VarChar(255)
+  phone      String     @db.VarChar(20)
+  attentions pet_vets[]
+}
+
+model vaccines {
+  id              Int         @id @default(autoincrement())
+  petId           Int
+  vetId           Int?
+  type            String      @db.VarChar(100)
+  category        VaccineType @default(LEGAL)
+  batchNumber     String      @db.VarChar(50)
+  laboratory      String      @db.VarChar(100)
+  applicationDate DateTime    @db.DateTime(0)
+  nextDate        DateTime?   @db.DateTime(0)
+  documentId      Int?
+  document        documents?  @relation(fields: [documentId], references: [id])
+  pet             pets        @relation(fields: [petId], references: [id])
+  vet             vets?       @relation(fields: [vetId], references: [id])
+
+  @@index([petId], map: "idx_pet")
+  @@index([batchNumber], map: "idx_batch")
+  @@index([applicationDate], map: "idx_date")
+  @@index([documentId], map: "vaccines_documentId_fkey")
+  @@index([vetId], map: "vaccines_vetId_fkey")
+}
+
+model documents {
+  id             Int          @id @default(autoincrement())
+  petId          Int
+  vetId          Int?
+  type           DocumentType
+  title          String       @db.VarChar(255)
+  fileUrl        String       @db.Text
+  issueDate      DateTime     @default(now())
+  expirationDate DateTime?    @db.DateTime(0)
+  pet            pets         @relation(fields: [petId], references: [id])
+  vet            vets?        @relation(fields: [vetId], references: [id])
+  vaccine        vaccines[]
+
+  @@index([petId], map: "idx_doc_pet")
+  @@index([type], map: "idx_doc_type")
+  @@index([vetId], map: "documents_vetId_fkey")
+}
+
+model review {
+  id           Int      @id @default(autoincrement())
+  rating       Int      @db.TinyInt
+  comment      String?  @db.Text
+  reviewerName String   @db.VarChar(100)
+  createdAt    DateTime @default(now())
+  vetId        Int?
+  vets         vets?    @relation(fields: [vetId], references: [id], map: "Review_vetId_fkey")
+
+  @@index([vetId], map: "Review_vetId_fkey")
+}
+
+model schedule {
+  id          Int      @id @default(autoincrement())
+  dayOfWeek   Int
+  startTime   DateTime @db.Time(0)
+  endTime     DateTime @db.Time(0)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  vetId       Int?
+  vets        vets?    @relation(fields: [vetId], references: [id], map: "Schedule_vetId_fkey")
+
+  @@index([vetId], map: "Schedule_vetId_fkey")
+}
+
+enum PlanRole {
   clinic
+  owner
   store
+  veterinarian
+  walker
 }
 
-model Plan {
-  id          Int      @id @default(autoincrement()) // ID único autoincremental
-  title       String // Título del plan
-  description String
-  price       Float // Price as a numeric value for calculations
-  period      String // e.g. "/mes", "/año"
-  category    Category
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relation to Features
-  features Feature[]
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+  INDEFINITE
 }
 
-model Feature {
-  id     Int    @id @default(autoincrement()) // ID único autoincremental
-  name   String
-  plan   Plan   @relation(fields: [planId], references: [id])
-  planId Int
+enum VaccineType {
+  LEGAL
+  RECOMMENDED
 }
 
-// ------------------------------------------
-
-model User {
-  id                Int      @id @default(autoincrement()) // ID único autoincremental
-  email             String   @unique // Email único
-  password          String // Hash de contraseña (nullable para OAuth)
-  planId            Int // ID del plan de suscripción
-  category          Category // Tipo de usuario (owner, vet, clinic, store)
-  isProfileComplete Boolean  @default(false) // Si el perfil está completo
-  createdAt         DateTime @default(now()) // Fecha creación
-  updatedAt         DateTime @updatedAt // Fecha actualización
-
-  // Relaciones 1:1 con perfiles específicos
-  owner        Owner?
-  veterinarian Veterinarian?
-  clinic       Clinic?
-  store        Store?
-}
-
-// Perfil de dueño de mascota
-model Owner {
-  id               Int      @id @default(autoincrement()) // ID único autoincremental
-  userId           Int      @unique // Relación 1:1 con User
-  name             String // Nombre completo
-  lastName         String // Apellido
-  phone            String // Teléfono principal
-  secondaryPhone   String? // Teléfono secundario
-  city             String // Ciudad
-  neighborhood     String // Barrio/localidad
-  address          String? // Dirección exacta
-  emergencyContact String? // Contacto emergencia
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // Relaciones
-  user         User          @relation(fields: [userId], references: [id])
-  pets         Pet[] // Mascotas asociadas
-  appointments Appointment[] // Citas asociadas
-}
-
-// Perfil de veterinario
-model Veterinarian {
-  id              Int      @id @default(autoincrement()) // ID único autoincremental
-  userId          Int      @unique
-  name            String // Nombre completo
-  lastName        String // Apellido
-  license         String?  @unique // Matrícula profesional
-  specialty       String // Especialidad principal
-  specialties     String // Otras especialidades
-  city            String // Ciudad
-  neighborhood    String // Barrio
-  university      String? // Alma mater
-  experience      Int?     @default(0) // Años de experiencia
-  consultationFee Float? // Precio consulta
-  bio             String? // Biografía profesional
-  socialMedia     Json? // Redes sociales (estructura flexible)
-  isAvailable     Boolean  @default(true)
-  clinicId        Int? // Clínica asociada (si aplica)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relaciones
-  user         User          @relation(fields: [userId], references: [id])
-  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
-  vaccines     Vaccine[] // Vacunas aplicadas
-  treatments   Treatment[] // Tratamientos realizados
-  // Removed duplicate field "treatments" to resolve the error
-  appointments Appointment[] // Citas agendadas
-}
-
-// Perfil de clínica veterinaria
-model Clinic {
-  id           Int      @id @default(autoincrement()) // ID único autoincremental
-  userId       Int      @unique
-  name         String // Nombre comercial
-  taxId        String?  @unique // RUC/CUIT/NIT
-  description  String? // Descripción servicios
-  phone        String // Teléfono principal
-  whatsapp     String? // WhatsApp para consultas
-  email        String? // Email contacto
-  website      String? // Sitio web
-  address      String // Dirección física
-  city         String // Ciudad
-  neighborhood String // Barrio
-  latitude     Float? // Coordenadas para mapas
-  longitude    Float?
-  openingHours String // Horario en formato JSON
-  isEmergency  Boolean  @default(false) // Atención emergencia 24/7
-  isVerified   Boolean  @default(false) // Verificado por plataforma
-  status       String   @default("active") // Estado operativo
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relaciones
-  user          User            @relation(fields: [userId], references: [id])
-  veterinarians Veterinarian[] // Veterinarios asociados
-  services      ClinicService[] // Servicios ofrecidos
-  appointments  Appointment[] // Citas en la clínica
-  vaccines      Vaccine[] // Vacunas aplicadas en la clínica
-  treatments    Treatment[] // Tratamientos realizados en la clínica
-}
-
-// Perfil de tienda de mascotas
-model Store {
-  id           Int      @id @default(autoincrement()) // ID único autoincremental
-  userId       Int      @unique
-  name         String // Nombre comercial
-  taxId        String?  @unique // Identificador fiscal
-  description  String? // Descripción negocio
-  phone        String // Teléfono contacto
-  whatsapp     String? // WhatsApp pedidos
-  email        String? // Email contacto
-  website      String? // Sitio web
-  address      String // Dirección física
-  city         String // Ciudad
-  neighborhood String // Barrio
-  latitude     Float? // Para geolocalización
-  longitude    Float?
-  openingHours Json // Horario atención
-  delivery     Boolean  @default(false) // Si hace entregas
-  isVerified   Boolean  @default(false)
-  status       String   @default("active")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relaciones
-  user     User           @relation(fields: [userId], references: [id])
-  products Product[] // Productos en venta
-  services StoreService[] // Servicios ofrecidos
-}
-
-// ------------------------------------------
-// MODELOS DE MASCOTAS Y SALUD
-// ------------------------------------------
-
-// Modelo de mascota
-model Pet {
-  id           Int       @id @default(autoincrement()) // ID único autoincremental
-  name         String // Nombre mascota
-  plateCode    String // Código placa
-  species      String // Especie (perro, gato, etc.)
-  breed        String? // Raza
-  birthDate    DateTime? // Fecha nacimiento aproximada
-  gender       String? // Género
-  weight       Float? // Peso actual (kg)
-  color        String? // Color principal
-  markings     String? // Marcas distintivas
-  microchip    String?   @unique // Número microchip
-  isSterilized Boolean? // Si está esterilizado
-  photoUrl     String? // URL foto principal
-  ownerId      Int // ID dueño principal
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  // Relaciones
-  owner          Owner           @relation(fields: [ownerId], references: [id])
-  vaccines       Vaccine[]
-  treatments     Treatment[]
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-}
-
-// Modelo de vacuna
-model Vaccine {
-  id           Int       @id @default(autoincrement()) // ID único autoincremental
-  name         String // Nombre vacuna
-  date         DateTime // Fecha aplicación
-  nextDate     DateTime? // Próxima dosis
-  batch        String? // Número de lote
-  manufacturer String? // Laboratorio
-  notes        String? // Observaciones
-  petId        Int // Mascota
-  vetId        Int? // Veterinario que aplicó
-  clinicId     Int? // Clínica donde se aplicó
-
-  // Relaciones
-  pet          Pet           @relation(fields: [petId], references: [id])
-  veterinarian Veterinarian? @relation(fields: [vetId], references: [id])
-  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
-}
-
-// Modelo de tratamiento médico
-model Treatment {
-  id           Int       @id @default(autoincrement()) // ID único autoincremental
-  name         String // Nombre tratamiento
-  description  String // Descripción
-  startDate    DateTime // Inicio
-  endDate      DateTime? // Fin estimado
-  diagnosis    String? // Diagnóstico asociado
-  medications  Json? // Medicamentos (estructurado)
-  instructions String? // Instrucciones cuidado
-  cost         Float? // Coste aproximado
-  petId        Int // Mascota
-  vetId        Int? // Veterinario responsable
-  clinicId     Int? // Clínica
-
-  // Relaciones
-  pet          Pet           @relation(fields: [petId], references: [id])
-  veterinarian Veterinarian? @relation(fields: [vetId], references: [id])
-  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
-}
-
-// Modelo de cita médica
-model Appointment {
-  id           Int               @id @default(autoincrement()) // ID único autoincremental
-  date         DateTime // Fecha/hora
-  duration     Int               @default(30) // Duración en minutos
-  reason       String // Motivo
-  status       AppointmentStatus @default(PENDING)
-  notes        String? // Notas previas
-  diagnosis    String? // Diagnóstico posterior
-  prescription String? // Receta médica
-  cost         Float? // Coste final
-  petId        Int // Mascota
-  ownerId      Int // Dueño
-  vetId        Int? // Veterinario
-  clinicId     Int? // Clínica
-  serviceId    Int? // Servicio específico
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-
-  // Relaciones
-  pet          Pet            @relation(fields: [petId], references: [id])
-  owner        Owner          @relation(fields: [ownerId], references: [id])
-  veterinarian Veterinarian?  @relation(fields: [vetId], references: [id])
-  clinic       Clinic?        @relation(fields: [clinicId], references: [id])
-  service      ClinicService? @relation(fields: [serviceId], references: [id])
-}
-
-// Estados posibles de una cita
-enum AppointmentStatus {
-  PENDING // Pendiente de confirmación
-  CONFIRMED // Confirmada
-  COMPLETED // Realizada
-  CANCELLED // Cancelada
-  NO_SHOW // No presentado
-}
-
-// Modelo de historial médico
-model MedicalRecord {
-  id    Int      @id @default(autoincrement()) // ID único autoincremental
-  title String // Título registro
-  type  String // Tipo (consulta, vacuna, etc.)
-  date  DateTime @default(now()) // Fecha evento
-  notes String // Detalles
-  petId Int // Mascota
-  // Relaciones
-  pet   Pet      @relation(fields: [petId], references: [id])
-}
-
-// ------------------------------------------
-// MODELOS DE SERVICIOS Y PRODUCTOS
-// ------------------------------------------
-
-// Servicio de clínica
-model ClinicService {
-  id          Int     @id @default(autoincrement()) // ID único autoincremental
-  clinicId    Int // Clínica que lo ofrece
-  name        String // Nombre servicio
-  description String? // Descripción
-  price       Float? // Precio base
-  duration    Int? // Duración minutos
-  isActive    Boolean @default(true) // Disponible
-
-  // Relaciones
-  clinic       Clinic        @relation(fields: [clinicId], references: [id])
-  appointments Appointment[] // Citas para este servicio
-}
-
-// Servicio de tienda
-model StoreService {
-  id          Int     @id @default(autoincrement()) // ID único autoincremental
-  storeId     Int // Tienda que lo ofrece
-  name        String // Nombre
-  description String?
-  price       Float?
-  duration    Int?
-  isActive    Boolean @default(true)
-
-  // Relaciones
-  store Store @relation(fields: [storeId], references: [id])
-}
-
-// Producto de tienda
-model Product {
-  id          Int      @id @default(autoincrement()) // ID único autoincremental
-  storeId     Int // Tienda
-  name        String // Nombre producto
-  description String? // Descripción
-  brand       String? // Marca
-  price       Float // Precio
-  isActive    Boolean  @default(true) // Disponible
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relaciones
-  store Store @relation(fields: [storeId], references: [id])
+enum DocumentType {
+  VACCINE_CERTIFICATE
+  OWNERSHIP_PROOF
+  DIAGNOSTIC_IMAGE
+  PRESCRIPTION
 }

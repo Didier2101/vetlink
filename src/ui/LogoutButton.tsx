@@ -3,12 +3,10 @@
 import { useRouter } from "next/navigation";
 import { logout } from "../lib/auth";
 import Swal from "sweetalert2";
-import { useTheme } from "@/components/principal/ThemeProvider";
 import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const router = useRouter();
-  const { isDarkMode, theme } = useTheme();
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -16,12 +14,10 @@ export default function LogoutButton() {
       text: "Se cerrará tu sesión actual.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#e3342f", // rojo
-      cancelButtonColor: isDarkMode ? "#4b5563" : "#9ca3af", // gris oscuro o claro según tema
+      confirmButtonColor: "#3b82f6", // blue-500
+      cancelButtonColor: "#6b7280", // gray-500
       confirmButtonText: "Sí, cerrar sesión",
       cancelButtonText: "Cancelar",
-      background: isDarkMode ? "#1f2937" : "#fff",
-      color: isDarkMode ? "#f9fafb" : "#111827",
     });
 
     if (result.isConfirmed) {
@@ -33,8 +29,6 @@ export default function LogoutButton() {
           icon: "success",
           showConfirmButton: false,
           timer: 1500,
-          background: isDarkMode ? "#1f2937" : "#fff",
-          color: isDarkMode ? "#f9fafb" : "#111827",
         });
         router.push("/");
       } else {
@@ -42,9 +36,7 @@ export default function LogoutButton() {
           title: "Error",
           text: "No se pudo cerrar la sesión.",
           icon: "error",
-          confirmButtonColor: "#e3342f",
-          background: isDarkMode ? "#1f2937" : "#fff",
-          color: isDarkMode ? "#f9fafb" : "#111827",
+          confirmButtonColor: "#3b82f6",
         });
       }
     }
@@ -53,21 +45,17 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className={`
-        group flex items-center justify-center 
-        px-4 py-2 rounded-lg font-medium 
-        transition-all duration-200
-        ${theme.buttonBg}
-      `}
-      aria-label="Cerrar sesión"
+      className="flex items-center px-4 py-3 rounded-xl gap-2 transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
     >
-      <LogOut
-        size={20}
-        className={`
-         text-white
-          group-hover:scale-110 transition-transform duration-200
-        `}
-      />
+      <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 transition-all duration-300">
+        <LogOut
+          size={18}
+          className="text-gray-700 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400"
+        />
+      </div>
+      <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
+        Cerrar Sesión
+      </span>
     </button>
   );
 }

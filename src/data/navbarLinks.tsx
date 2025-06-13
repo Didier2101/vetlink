@@ -10,6 +10,7 @@ import {
   ClipboardList,
   UserSquare,
   User,
+  Home,
 } from "lucide-react";
 
 export interface NavLink {
@@ -22,6 +23,11 @@ export const getLinksWithIcons = (category: string): NavLink[] => {
   switch (category) {
     case "owner":
       return [
+        {
+          href: "/perfiles/owner",
+          label: "Inicio",
+          icon: <Home size={18} />,
+        },
         {
           href: "/perfiles/owner/perfil",
           label: "Perfil",

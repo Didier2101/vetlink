@@ -2,7 +2,7 @@
 
 import React from "react";
 import ThemeToggle from "./ThemeToggle";
-import { useTheme } from "@/components/principal/ThemeProvider";
+import { useTheme } from "@/components/public/auth/ThemeProvider";
 
 interface FloatingThemeToggleProps {
   position?: "bottom-right" | "bottom-left" | "top-right" | "top-left";

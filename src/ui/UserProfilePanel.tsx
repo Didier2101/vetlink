@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { User2, ChevronUp, ChevronDown } from "lucide-react";
-import { useTheme } from "@/components/principal/ThemeProvider";
 import LogoutButton from "@/src/ui/LogoutButton";
+import { useTheme } from "@/components/public/auth/ThemeProvider";
 
 interface UserSession {
   name?: string;

@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Archivos subidos por usuarios
+/public/uploads/
+
+# O si quieres mantener la estructura de carpetas pero no las imágenes:
+/public/uploads/*
+!/public/uploads/.gitkeep

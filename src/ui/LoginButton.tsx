@@ -1,26 +1,26 @@
 // src/components/navbar/AuthButton.tsx
 "use client";
 
-import { useTheme } from "@/components/principal/ThemeProvider";
 import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export const LoginButton = () => {
-  const { isDarkMode, theme } = useTheme();
-
   const router = useRouter();
 
   return (
     <button
       onClick={() => router.push("/auth/login")}
-      className={`flex items-center px-4 py-3 rounded-lg gap-2 ${
-        theme.textColor
-      } ${theme.hoverColor} ${
-        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-      }`}
+      className="flex items-center px-4 py-3 rounded-xl gap-2 transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
     >
-      <LogIn size={16} />
-      {/* <span className=" hidden md:block">Iniciar Sesión</span> */}
+      <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-gradient-to-br from-blue-100 to-teal-100 dark:from-blue-900/30 dark:to-teal-900/30 transition-all duration-300">
+        <LogIn
+          size={18}
+          className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+        />
+      </div>
+      <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+        Iniciar Sesión
+      </span>
     </button>
   );
 };

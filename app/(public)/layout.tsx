@@ -1,6 +1,5 @@
-import Footer from "@/components/principal/Footer";
-import MobileBottomNav from "@/components/principal/MobileBottomNav";
-import NavBar from "@/components/principal/navbar/NavBar";
+import Footer from "@/components/public/principal/Footer";
+import NavBar from "@/components/public/principal/navbar/NavBar";
 
 export default function PublicLayout({
   children,
@@ -10,9 +9,9 @@ export default function PublicLayout({
   return (
     <div>
       <NavBar />
-      <main>{children}</main>
-      <MobileBottomNav />
-
+      <main className="max-w-6xl mx-auto pt-18 md:pt-28 min-h-screen px-3">
+        {children}
+      </main>
       <Footer />
     </div>
   );
