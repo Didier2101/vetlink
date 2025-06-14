@@ -27,6 +27,7 @@ const usePetForm = (ownerId: number) => {
         setValue,
         trigger,
         reset,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm<PetFormData>({
         resolver: zodResolver(petSchema),
@@ -53,7 +54,6 @@ const usePetForm = (ownerId: number) => {
     ];
 
     const onSubmit = async (data: PetFormData) => {
-        console.log("envia", data);
         try {
             const result = await createPet(data);
 
@@ -170,6 +170,8 @@ const usePetForm = (ownerId: number) => {
         trigger,
         sectionFields,
         setActiveSection,
+        setValue,
+        watch,
     };
 }
 

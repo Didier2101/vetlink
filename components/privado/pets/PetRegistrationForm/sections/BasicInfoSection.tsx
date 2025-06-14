@@ -1,9 +1,15 @@
-import React from "react";
+"use client"
+
+import React, { useEffect, useState } from "react";
 import { FormSectionProps } from "../types";
 import { PawPrint } from "lucide-react";
 import { PetPhotoUploader } from "../components/PetPhotoUploader";
 import { FormInput } from "../components/FormInput";
 import { FormSelect } from "../components/FormSelect";
+import { UseFormWatch, UseFormSetValue } from "react-hook-form";
+import { breedsData } from "@/src/data/breeds";
+import { PetFormData } from "@/schemas/pets/pet";
+import { colorOptions } from "@/src/data/colors";
 
 interface BasicInfoSectionProps extends FormSectionProps {
   selectedImageUrl?: string | null;
@@ -12,6 +18,8 @@ interface BasicInfoSectionProps extends FormSectionProps {
   selectedFile?: File | null;
   handlePhotoChange: (file: File) => Promise<void>;
   handleRemovePhoto: () => Promise<void>;
+  watch: UseFormWatch<PetFormData>;
+  setValue: UseFormSetValue<PetFormData>;
 }
 
 export const BasicInfoSection = ({
@@ -22,8 +30,37 @@ export const BasicInfoSection = ({
   uploadError,
   selectedFile,
   handlePhotoChange,
-  handleRemovePhoto
+  handleRemovePhoto,
+  watch,
+  setValue,
 }: BasicInfoSectionProps) => {
+  // Observa el valor del campo 'species'
+  const selectedSpecies = watch("species");
+
+  const [availableBreeds, setAvailableBreeds] = useState<
+    { value: string; label: string }[]
+  >([]);
+
+  // Efecto para actualizar las razas disponibles cuando cambia la especie seleccionada
+  useEffect(() => {
+    // Limpia la raza seleccionada cuando cambia la especie
+    setValue("breed", "");
+
+    if (selectedSpecies === "dog") {
+      setAvailableBreeds([
+        { value: "", label: "Seleccione raza" },
+        ...breedsData.dogs
+      ]);
+    } else if (selectedSpecies === "cat") {
+      setAvailableBreeds([
+        { value: "", label: "Seleccione raza" },
+        ...breedsData.cats
+      ]);
+    } else {
+      setAvailableBreeds([{ value: "", label: "Seleccione especie primero" }]);
+    }
+  }, [selectedSpecies, setValue]); // Añadido setValue como dependencia
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -66,15 +103,22 @@ export const BasicInfoSection = ({
             { value: "dog", label: "Perro" },
             { value: "cat", label: "Gato" },
           ]}
-          required
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === "dog" || value === "cat") {
+              setValue("species", value);
+            }
+            setValue("breed", "");
+          }}
         />
 
-        <FormInput
+        <FormSelect
           label="Raza"
           name="breed"
           register={register}
           error={errors.breed}
-          placeholder="Ej: Labrador, Siames, etc."
+          options={availableBreeds}
+          disabled={!selectedSpecies}
           required
         />
 
@@ -99,12 +143,12 @@ export const BasicInfoSection = ({
           type="date"
         />
 
-        <FormInput
+        <FormSelect
           label="Color principal"
           name="color"
           register={register}
           error={errors.color}
-          placeholder="Ej: Negro, Blanco, etc."
+          options={colorOptions}
           required
         />
       </div>

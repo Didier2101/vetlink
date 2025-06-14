@@ -1,6 +1,4 @@
 "use client";
-
-
 import IdentificationSection from "./sections/IdentificationSection";
 import CareSection from "./sections/CareSection";
 import usePetForm from "./usePetForm";
@@ -15,8 +13,6 @@ interface PetProps {
 }
 
 const PetRegistrationForm = ({ ownerId }: PetProps) => {
-
-
   const {
     activeSection,
     setActiveSection,
@@ -34,8 +30,9 @@ const PetRegistrationForm = ({ ownerId }: PetProps) => {
     selectedFile,
     handlePhotoChange,
     handleRemovePhoto,
+    setValue,  // Añade estas propiedades
+    watch,
   } = usePetForm(ownerId);
-
 
   const renderSection = () => {
     switch (activeSection) {
@@ -50,21 +47,22 @@ const PetRegistrationForm = ({ ownerId }: PetProps) => {
             selectedFile={selectedFile}
             handlePhotoChange={handlePhotoChange}
             handleRemovePhoto={handleRemovePhoto}
+            setValue={setValue}
+            watch={watch}
           />
         );
       case "identification":
-        return <IdentificationSection register={register} errors={errors} />;
+        return <IdentificationSection register={register} errors={errors} setValue={setValue} watch={watch} />;
       case "medical":
-        return <MedicalSection register={register} errors={errors} />;
+        return <MedicalSection register={register} errors={errors} setValue={setValue} watch={watch} />;
       case "behavior":
-        return <BehaviorSection register={register} errors={errors} />;
+        return <BehaviorSection register={register} errors={errors} setValue={setValue} watch={watch} />;
       case "care":
-        return <CareSection register={register} errors={errors} />;
+        return <CareSection register={register} errors={errors} setValue={setValue} watch={watch} />;
       default:
         return null;
     }
   };
-
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">

@@ -1,4 +1,4 @@
-import { UseFormRegister, FieldErrors, UseFormTrigger } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormTrigger, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { PetFormData } from "@/schemas/pets/pet";
 
 export interface PetRegistrationSections {
@@ -28,4 +28,6 @@ export interface FormSidebarProps {
 export interface FormSectionProps {
     register: UseFormRegister<PetFormData>;
     errors: FieldErrors<PetFormData>;
+    setValue: UseFormSetValue<PetFormData>;
+    watch: UseFormWatch<PetFormData>;
 }
