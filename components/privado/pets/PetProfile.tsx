@@ -29,7 +29,7 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
   }
 
   return (
-    <div className="pb-10">
+    <div className="pb-10 mt-6">
       {/* Header con botón de regreso */}
       <div className="mb-6">
         <Link
@@ -88,7 +88,7 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
                     pet.sterilized
                       ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
                       : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
-                  } mx-auto lg:mx-0`} // Centrado en móvil, sin margen en desktop
+                    } mx-auto lg:mx-0`} // Centrado en móvil, sin margen en desktop
                 >
                   {pet.sterilized ? "Esterilizado" : "No esterilizado"}
                 </span>
@@ -193,7 +193,7 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
                     </span>{" "}
                     {formatDate(
                       vaccine.applicationDate?.toISOString?.() ??
-                        vaccine.applicationDate
+                      vaccine.applicationDate
                     )}
                     <br /> {/* Salto de línea para separar las fechas */}
                     {/* Próxima fecha */}
@@ -220,7 +220,7 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
                       vaccine.category === "LEGAL"
                         ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                    }`}
+                      }`}
                   >
                     {vaccine.category === "LEGAL"
                       ? "Obligatoria"
@@ -373,54 +373,54 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
         pet.chronicDiseases ||
         pet.disabilities ||
         pet.behaviorNotes) && (
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold mb-4">
-            Información Médica Adicional
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {pet.allergies && (
-              <div>
-                <h3 className="font-medium text-red-700 dark:text-red-400 mb-2">
-                  Alergias
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                  {pet.allergies}
-                </p>
-              </div>
-            )}
-            {pet.chronicDiseases && (
-              <div>
-                <h3 className="font-medium text-orange-700 dark:text-orange-400 mb-2">
-                  Enfermedades Crónicas
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
-                  {pet.chronicDiseases}
-                </p>
-              </div>
-            )}
-            {pet.disabilities && (
-              <div>
-                <h3 className="font-medium text-blue-700 dark:text-blue-400 mb-2">
-                  Discapacidades
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                  {pet.disabilities}
-                </p>
-              </div>
-            )}
-            {pet.behaviorNotes && (
-              <div>
-                <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-2">
-                  Notas de Comportamiento
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                  {pet.behaviorNotes}
-                </p>
-              </div>
-            )}
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold mb-4">
+              Información Médica Adicional
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {pet.allergies && (
+                <div>
+                  <h3 className="font-medium text-red-700 dark:text-red-400 mb-2">
+                    Alergias
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                    {pet.allergies}
+                  </p>
+                </div>
+              )}
+              {pet.chronicDiseases && (
+                <div>
+                  <h3 className="font-medium text-orange-700 dark:text-orange-400 mb-2">
+                    Enfermedades Crónicas
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
+                    {pet.chronicDiseases}
+                  </p>
+                </div>
+              )}
+              {pet.disabilities && (
+                <div>
+                  <h3 className="font-medium text-blue-700 dark:text-blue-400 mb-2">
+                    Discapacidades
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                    {pet.disabilities}
+                  </p>
+                </div>
+              )}
+              {pet.behaviorNotes && (
+                <div>
+                  <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-2">
+                    Notas de Comportamiento
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    {pet.behaviorNotes}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };

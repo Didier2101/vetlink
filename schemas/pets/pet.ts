@@ -4,11 +4,6 @@ export const petSchema = z.object({
     ownerId: z.number(),
     // ==================== DATOS BÁSICOS ====================
     photo: z.string().optional().or(z.literal("")),
-
-    codeVetlink: z.string()
-        .max(10, "Máximo 10 caracteres")
-        .min(6, "Minimo 6 caracteres"),
-
     name: z.string()
         .min(2, "Nombre muy corto (mín. 2 caracteres)")
         .max(50, "Nombre muy largo (máx. 50 caracteres)"),
@@ -73,7 +68,7 @@ export const petSchema = z.object({
         .optional(),
 
     activityLevel: z.enum(["low", "medium", "high"], {
-        required_error: "Por favor selecciona un nivel de agresividad",
+        required_error: "Por favor selecciona un nivel de actividad",
     }),
 
     aggressive: z.enum(["none", "mild", "moderate", "severe"], {
@@ -87,7 +82,7 @@ export const petSchema = z.object({
         .optional(),
 
     diet: z.enum(["commercial", "natural", "barf", "mixed", "other"], {
-        required_error: "Por favor selecciona un nivel de agresividad",
+        required_error: "Por favor selecciona un tipo de dieta",
     }),
 
     favoriteFood: z

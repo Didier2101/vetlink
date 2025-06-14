@@ -23,90 +23,86 @@ const PricingSlider = ({ plans }: PricingSliderProps) => {
     slidesToScroll: 1,
     arrows: false,
     centerMode: true,
-    centerPadding: "12.5%", // 12.5% cada lado = 75% para la card principal
-    swipe: true, // Habilita el swipe táctil
-    touchMove: true, // Habilita el movimiento táctil
+    centerPadding: "20%",
+    swipe: true,
+    touchMove: true,
     responsive: [
+      {
+        breakpoint: 1280,
+        settings: {
+          centerPadding: "16%",
+        },
+      },
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 1,
-          centerMode: true,
-          centerPadding: "12.5%",
-          infinite: plans.length > 1,
-          swipe: true,
-          touchMove: true,
+          centerPadding: "12%",
         },
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1,
-          centerMode: true,
-          centerPadding: "10%",
-          infinite: plans.length > 1,
-          swipe: true,
-          touchMove: true,
+          centerPadding: "8%",
         },
       },
       {
         breakpoint: 640,
         settings: {
-          slidesToShow: 1,
-          centerMode: true,
-          centerPadding: "5%",
-          infinite: plans.length > 1,
-          swipe: true,
-          touchMove: true,
+          centerPadding: "0%",
         },
       },
     ],
   };
 
-  const nextSlide = () => {
-    if (sliderRef.current) {
-      sliderRef.current.slickNext();
-    }
-  };
-
-  const prevSlide = () => {
-    if (sliderRef.current) {
-      sliderRef.current.slickPrev();
-    }
-  };
+  const nextSlide = () => sliderRef.current?.slickNext();
+  const prevSlide = () => sliderRef.current?.slickPrev();
 
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
-
-        <h2 className={`${concert_one.className}  text-4xl font-bold text-center mb-4 bg-gradient-to-r from-gray-900 via-blue-800 to-teal-700 dark:from-white dark:via-blue-200 dark:to-teal-200 bg-clip-text text-transparent`}>
+        {/* Título */}
+        <h2
+          className={`${concert_one.className} text-4xl font-bold text-center mb-4 bg-gradient-to-r from-gray-900 via-blue-800 to-teal-700 dark:from-white dark:via-blue-200 dark:to-teal-200 bg-clip-text text-transparent`}
+        >
           Planes para todos
         </h2>
-        <p className="text-center mb-12 text-gray-600">
+        <p className="text-center mb-12 text-gray-600 dark:text-gray-400">
           Elige el plan perfecto para dueños, veterinarios o clínicas
           veterinarias.
         </p>
 
         <div className="relative">
-          {/* Botones sobrepuestos - solo visibles en md+ */}
+          {/* Botón anterior */}
           <button
             onClick={prevSlide}
-            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-xl items-center justify-center hover:bg-gray-900 dark:hover:bg-gray-800 hover:shadow-2xl transition-all duration-300 group"
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-xl items-center justify-center hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-2xl transition-all duration-300 group"
           >
-            <ChevronLeft size={32} className="text-gray-400 group-hover:text-gray-100" />
+            <ChevronLeft
+              size={28}
+              className="text-gray-400 group-hover:text-gray-100"
+            />
           </button>
 
+          {/* Botón siguiente */}
           <button
             onClick={nextSlide}
-            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-xl items-center justify-center hover:bg-gray-900 dark:hover:bg-gray-800 hover:shadow-2xl transition-all duration-300 group"
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-xl items-center justify-center hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-2xl transition-all duration-300 group"
           >
-            <ChevronRight size={32} className="text-gray-400 group-hover:text-gray-100" />
+            <ChevronRight
+              size={28}
+              className="text-gray-400 group-hover:text-gray-100"
+            />
           </button>
 
-          <Slider ref={sliderRef} {...settings} className="pricing-slider [&_.slick-slide]:transition-all [&_.slick-slide]:duration-300 [&_.slick-slide:not(.slick-center)]:opacity-60 [&_.slick-slide:not(.slick-center)]:scale-95 [&_.slick-center]:opacity-100 [&_.slick-center]:scale-100 [&_.slick-list]:overflow-visible">
+          {/* Slider */}
+          <Slider
+            ref={sliderRef}
+            {...settings}
+            className="pricing-slider [&_.slick-slide]:transition-all [&_.slick-slide]:duration-300 [&_.slick-slide:not(.slick-center)]:opacity-60 [&_.slick-slide:not(.slick-center)]:scale-95 [&_.slick-center]:opacity-100 [&_.slick-center]:scale-100 [&_.slick-list]:overflow-visible"
+          >
             {plans.map((plan) => (
               <div key={plan.id} className="outline-none px-2">
-                <div className="w-full">
+                <div className="w-full max-w-sm mx-auto">
                   <PlanCard plan={plan} />
                 </div>
               </div>

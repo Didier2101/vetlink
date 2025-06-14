@@ -104,8 +104,9 @@ const RegistroForm = () => {
 
 
   const onSubmit = async (data: RegistroFormData) => {
-    console.log("data", data)
+    console.log("data", data);
     const result = await registerUser(data);
+
     if (!result.success) {
       Swal.fire({
         icon: "error",
@@ -117,14 +118,25 @@ const RegistroForm = () => {
       Swal.fire({
         icon: "success",
         title: "Registro exitoso",
-        text: result.message || "Tu cuenta ha sido creada exitosamente.",
+        html: `
+          <div>
+            <p>${result.message || "Tu cuenta ha sido creada exitosamente."}</p>
+            <p class="mt-4">Hemos enviado un correo de verificación a <strong>${data.email}</strong>.</p>
+            <p class="text-sm text-gray-500 mt-2">
+              Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+            </p>
+            <p class="text-sm text-gray-500 mt-1">
+              ¿No recibiste el correo? <a href="/verify-email/resend" class="text-blue-500 hover:underline">Reenviar correo</a>
+            </p>
+          </div>
+        `,
         confirmButtonColor: "#22c55e",
+        confirmButtonText: "Entendido",
       }).then(() => {
         router.push("/auth/login");
       });
     }
   };
-
 
   return (
     <div>

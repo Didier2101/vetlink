@@ -1,10 +1,10 @@
 "use client";
 
 import { Pets } from "@/types/typesPets";
-import { Calendar, Stethoscope, FileText, Syringe, Shield } from "lucide-react";
+import { Calendar, Stethoscope, FileText, Syringe, Shield, PawPrint } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaCamera } from "react-icons/fa";
+
 import { calculatePetAge } from "@/src/utils/formatDate";
 
 interface CardPetsProps {
@@ -19,14 +19,13 @@ const CardPets = ({ pet }: CardPetsProps) => {
           <Image
             src={pet.photo ?? "/placeholder-pet.png"}
             alt={pet.name}
-            width={64}
-            height={64}
-            className="w-16 h-16 rounded-full object-cover mr-4 border-2 border-emerald-500"
+            width={80}  // ✅ Cambiar de 64 a 80
+            height={80} // ✅ Cambiar de 64 a 80
+            className="w-20 h-20 rounded-full object-cover mr-4 border-4 border-emerald-500" // ✅ Cambiar w-16 h-16 por w-20 h-20 y border-2 por border-4
           />
         ) : (
-          <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-gray-200 flex items-center justify-center border-4 border-emerald-500 mx-auto lg:mx-0">
-            <FaCamera className="text-gray-500 text-6xl lg:text-7xl" />{" "}
-            {/* Ajusta el tamaño del icono */}
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-emerald-500 mr-4"> {/* ✅ Agregar mr-4 para consistencia */}
+            <PawPrint className="text-gray-400" size={24} /> {/* ✅ Usar un icono en lugar de texto */}
           </div>
         )}
 
@@ -34,11 +33,10 @@ const CardPets = ({ pet }: CardPetsProps) => {
           <div className="flex justify-between items-start">
             <h3 className="font-bold text-lg">{pet.name}</h3>
             <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                pet.sterilized
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
-                  : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
-              }`}
+              className={`text-xs px-2 py-1 rounded-full ${pet.sterilized
+                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
+                }`}
             >
               {pet.sterilized ? "Esterilizado" : "No esterilizado"}
             </span>

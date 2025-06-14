@@ -17,7 +17,7 @@ import { LoginFormData, loginSchema } from "@/schemas/auth/auth";
 import Swal from "sweetalert2";
 import Link from "next/link";
 
-import { loginUser } from "@/app/actions/auth";
+import { loginUser, resendVerificationEmail } from "@/app/actions/auth";
 
 const Login = () => {
   const router = useRouter();
@@ -32,14 +32,41 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
     mode: "all",
   });
-
   const onSubmit = async (loginData: LoginFormData) => {
-
-
     try {
       const result = await loginUser(loginData);
 
       if (!result.success) {
+        // Mensaje especial para email no verificado
+        if (result.message?.includes("verifica tu email")) {
+          return Swal.fire({
+            icon: "warning",
+            title: "Verificación requerida",
+            html: `
+                        <div>
+                            <p>${result.message}</p>
+                            <p class="mt-3">¿No recibiste el correo?</p>
+                            <button id="resend-btn" class="mt-2 px-4 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200">
+                                Reenviar correo de verificación
+                            </button>
+                        </div>
+                    `,
+            confirmButtonColor: "#3b82f6",
+            didOpen: () => {
+              document.getElementById('resend-btn')?.addEventListener('click', async () => {
+                Swal.showLoading();
+                const resendResult = await resendVerificationEmail(loginData.email);
+                Swal.fire({
+                  icon: resendResult.success ? "success" : "error",
+                  title: resendResult.success ? "Correo reenviado" : "Error",
+                  text: resendResult.message,
+                });
+              });
+            }
+          });
+        }
+
+        // Mensaje de error normal para otros casos
         return Swal.fire({
           icon: "error",
           title: "Error",
@@ -48,7 +75,7 @@ const Login = () => {
         });
       }
 
-
+      // Éxito en el login (manteniendo tu lógica original)
       Swal.fire({
         icon: "success",
         title: "Éxito",
@@ -58,17 +85,15 @@ const Login = () => {
         background: "#f8fafc",
       }).then(() => {
         if (result.success) {
-          // Redirigir basado en la respuesta del servidor
           const route = !result.user?.isProfileComplete
             ? `/${result.user?.role}/complete-profile`
             : `/${result.user.role}/dashboard`;
-          console.log(`redirigiendo a ${route}`)
+          console.log(`redirigiendo a ${route}`);
           router.push(route);
         }
       });
     } catch (err) {
       console.error("Error de inicio de sesión:", err);
-
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -77,7 +102,6 @@ const Login = () => {
       });
     }
   };
-
 
   return (
     <div className="pb-10">

@@ -1,4 +1,4 @@
-import PetRegistrationForm from "@/components/privado/pets/PetRegistrationForm";
+import PetRegistrationForm from "@/components/privado/pets/PetRegistrationForm/PetRegistrationForm";
 import { getSession } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import Loading from "@/src/ui/Loading";
@@ -14,7 +14,6 @@ const owner = await prisma.owners.findUnique({
 
 // Acceder al ID del owner:
 const ownerId = owner?.id
-console.log("id", ownerId)
 
 
 const petsPage = () => {

@@ -121,7 +121,7 @@ model pets {
   microchipNumber String?       @db.VarChar(100)
   tattooCode      String?       @db.VarChar(100)
   passportNumber  String?       @db.VarChar(100)
-  codeVetlink     String        @unique @db.VarChar(100)
+  codeVetlink     String        @unique @default("VL-0000000-0") @db.VarChar(15) // Longitud exacta para "VL-0000000-0"
   sterilized      Boolean       @default(false)
   allergies       String?       @db.Text
   chronicDiseases String?       @db.Text

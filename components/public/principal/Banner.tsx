@@ -36,7 +36,7 @@ const Banner = () => {
 
   return (
     <div
-      className={`rounded-2xl p-4 sm:p-6 ${ads[currentAd].bg} border border-gray-200/50 dark:border-gray-700/50 shadow-md`}
+      className={`rounded-2xl mt-10 p-4 sm:p-6 ${ads[currentAd].bg} border border-gray-200/50 dark:border-gray-700/50 shadow-md`}
     >
       <div className="flex flex-col gap-4 sm:gap-6">
         {/* Header */}
@@ -78,11 +78,10 @@ const Banner = () => {
             <button
               key={index}
               onClick={() => setCurrentAd(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === currentAd
+              className={`w-2 h-2 rounded-full transition-all ${index === currentAd
                   ? "bg-emerald-500 scale-125"
                   : "bg-gray-300 dark:bg-gray-600"
-              }`}
+                }`}
               aria-label={`Mostrar recomendación ${index + 1}`}
             />
           ))}

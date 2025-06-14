@@ -13,6 +13,57 @@ const SESSION_DURATION = 60 * 60 * 24 * 30;
 
 
 
+export async function verifyEmail(token: string) {
+    if (!token) {
+        return {
+            success: false,
+            message: "Token de verificación no proporcionado",
+        };
+    }
+
+    try {
+        // Buscar usuario con este token y que no haya expirado
+        const user = await prisma.users.findFirst({
+            where: {
+                confirmationToken: token,
+                tokenExpiresAt: {
+                    gt: new Date(), // Mayor que la fecha actual
+                },
+            },
+        });
+
+        if (!user) {
+            return {
+                success: false,
+                message: "Token inválido o expirado. Por favor solicita un nuevo enlace de verificación.",
+            };
+        }
+
+        // Actualizar el usuario
+        await prisma.users.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                emailConfirmed: true,
+                confirmationToken: null,
+                tokenExpiresAt: null,
+            },
+        });
+
+        return {
+            success: true,
+            message: "Email verificado correctamente. Ya puedes iniciar sesión.",
+        };
+    } catch (error) {
+        console.error("Error al verificar el email:", error);
+        return {
+            success: false,
+            message: "Error al verificar el email. Por favor intenta nuevamente.",
+        };
+    }
+}
+
 // Server Action para registrar usuario
 export async function registerUser(data: RegistroFormData) {
     const userData = {
@@ -94,87 +145,7 @@ export async function registerUser(data: RegistroFormData) {
 
 
 
-export async function verifyEmail(token: string) {
-    try {
-        // Buscar usuario por token no expirado
-        const user = await prisma.users.findFirst({
-            where: {
-                confirmationToken: token,
-                tokenExpiresAt: { gt: new Date() }, // Token aún válido
-                emailConfirmed: false // Solo si no está confirmado
-            }
-        });
 
-        if (!user) {
-            return {
-                success: false,
-                message: "El enlace de verificación es inválido o ha expirado.",
-            };
-        }
-
-        // Actualizar usuario como verificado
-        await prisma.users.update({
-            where: { id: user.id },
-            data: {
-                emailConfirmed: true,
-                confirmationToken: null,
-                tokenExpiresAt: null,
-                // Si tienes un campo status, actualízalo también
-                // status: 'Active'
-            }
-        });
-
-        return {
-            success: true,
-            message: "Email verificado exitosamente. Ahora puedes iniciar sesión.",
-            email: user.email // Añadimos el campo email
-        };
-    } catch (error) {
-        console.error("Error al verificar el email:", error);
-        return {
-            success: false,
-            message: "Error al verificar el email.",
-        };
-    }
-}
-
-
-export async function resendVerificationEmail(email: string) {
-    try {
-        const user = await prisma.users.findUnique({
-            where: { email },
-            select: { emailConfirmed: true }
-        });
-
-        if (!user) {
-            return { success: false, message: "Usuario no encontrado." };
-        }
-
-        if (user.emailConfirmed) {
-            return { success: false, message: "El email ya está verificado." };
-        }
-
-        // Generar nuevo token
-        const newToken = randomBytes(32).toString('hex');
-        const newExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-        await prisma.users.update({
-            where: { email },
-            data: {
-                confirmationToken: newToken,
-                tokenExpiresAt: newExpiry
-            }
-        });
-
-        // Reenviar email
-        await sendVerificationEmail(email, newToken);
-
-        return { success: true, message: "Email de verificación reenviado." };
-    } catch (error) {
-        console.error("Error al reenviar email:", error);
-        return { success: false, message: "Error al reenviar el email de verificación." };
-    }
-}
 
 export async function loginUser(loginData: LoginFormData) {
     // Verificamos que lleguen los datos
@@ -280,6 +251,80 @@ export async function loginUser(loginData: LoginFormData) {
         return {
             success: false,
             message: "Error al procesar el inicio de sesión",
+        };
+    }
+}
+
+
+
+// app/actions/auth.ts
+export async function resendVerificationEmail(email: string) {
+    if (!email) {
+        return {
+            success: false,
+            message: "Email no proporcionado",
+        };
+    }
+
+    try {
+        const user = await prisma.users.findUnique({
+            where: {
+                email,
+            },
+            select: {
+                id: true,
+                email: true,
+                emailConfirmed: true,
+                confirmationToken: true,
+                tokenExpiresAt: true,
+            },
+        });
+
+        if (!user) {
+            return {
+                success: false,
+                message: "No existe una cuenta con este email",
+            };
+        }
+
+        if (user.emailConfirmed) {
+            return {
+                success: false,
+                message: "Este email ya ha sido verificado",
+            };
+        }
+
+        // Generar nuevo token si el anterior está expirado o no existe
+        let token = user.confirmationToken;
+        let expiresAt = user.tokenExpiresAt;
+
+        if (!token || !expiresAt || new Date() > expiresAt) {
+            token = randomBytes(32).toString('hex');
+            expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+            await prisma.users.update({
+                where: {
+                    id: user.id,
+                },
+                data: {
+                    confirmationToken: token,
+                    tokenExpiresAt: expiresAt,
+                },
+            });
+        }
+
+        // Enviar email de verificación
+        await sendVerificationEmail(user.email, token);
+
+        return {
+            success: true,
+            message: "Email de verificación reenviado. Por favor revisa tu bandeja de entrada.",
+        };
+    } catch (error) {
+        console.error("Error al reenviar email de verificación:", error);
+        return {
+            success: false,
+            message: "Error al reenviar el email de verificación",
         };
     }
 }

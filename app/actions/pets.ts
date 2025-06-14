@@ -2,7 +2,7 @@
 
 import { PetFormData } from "@/schemas/pets/pet";
 import { prisma } from "@/src/lib/prisma";
-import { redirect } from "next/navigation";
+import { generateVetLinkCode } from "@/src/utils/vetlinkGenerator";
 
 export const createPet = async (petData: PetFormData) => {
 
@@ -14,15 +14,7 @@ export const createPet = async (petData: PetFormData) => {
     }
 
     try {
-        // 1. Verificar si ya existe una mascota con ese código Vetlink
-        const existingPet = await prisma.pets.findUnique({
-            where: {
-                codeVetlink: petData.codeVetlink
-            },
-        })
-        if (existingPet) {
-            return { success: false, message: "Ya existe una mascota con ese código Vetlink." };
-        }
+
         // 2. Verificar si el dueño existe
         const ownerExisting = await prisma.owners.findUnique({
             where: {
@@ -59,57 +51,82 @@ export const createPet = async (petData: PetFormData) => {
                     success: false,
                     message: "Tu plan actual permite hasta 3 mascotas. Actualiza a 'Mi Manada Pro' para registrar más."
                 };
-                redirect('/owner/dashboard?error=limit_reached');
             }
         }
         // El plan Pro no tiene límites, no necesita verificación
 
-        // 3. Crear la nueva mascota
-        await prisma.pets.create({
-            data: {
-                // Datos básicos
-                name: petData.name,
-                species: petData.species,
-                breed: petData.breed,
-                sex: petData.sex,
-                color: petData.color,
-                birthDate: petData.birthDate,
-                microchipNumber: petData.microchipNumber,
-                tattooCode: petData.tattooCode,
-                passportNumber: petData.passportNumber,
-                codeVetlink: petData.codeVetlink,
-                // Información médica
-                sterilized: petData.sterilized,
-                allergies: petData.allergies,
-                chronicDiseases: petData.chronicDiseases,
-                disabilities: petData.disabilities,
-                bloodType: petData.bloodType,
-                // Comportamiento
-                behaviorNotes: petData.behaviorNotes,
-                feedingSchedule: petData.feedingSchedule,
-                diet: petData.diet,
-                activityLevel: petData.activityLevel,
-                aggressive: petData.aggressive,
-                favoriteFood: petData.favoriteFood,
-                // Información adicional
-                photo: petData.photo, // Removed because 'photo' is not a valid field in the Prisma schema
-                // Documentos - estructura correcta para relación
-                // Documentos (creación relacionada)
+        // 3. Crear la mascota en transacción atómica
+        // 3. Crear la mascota en transacción atómica
+        const result = await prisma.$transaction(async (tx) => {
+            // Paso 1: Crear registro básico (sin código VetLink)
+            const newPet = await tx.pets.create({
+                data: {
+                    name: petData.name,
+                    species: petData.species,
+                    breed: petData.breed,
+                    sex: petData.sex,
+                    color: petData.color,
+                    birthDate: petData.birthDate,
+                    microchipNumber: petData.microchipNumber,
+                    tattooCode: petData.tattooCode,
+                    passportNumber: petData.passportNumber,
+                    sterilized: petData.sterilized,
+                    allergies: petData.allergies,
+                    chronicDiseases: petData.chronicDiseases,
+                    disabilities: petData.disabilities,
+                    bloodType: petData.bloodType,
+                    behaviorNotes: petData.behaviorNotes,
+                    feedingSchedule: petData.feedingSchedule,
+                    diet: petData.diet,
+                    activityLevel: petData.activityLevel,
+                    aggressive: petData.aggressive,
+                    favoriteFood: petData.favoriteFood,
+                    photo: petData.photo,
+                    ownerId: petData.ownerId,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    codeVetlink: "VL-0000000-0" // Valor temporal
+                }
+            });
 
+            // Paso 2: Generar código VetLink único basado en el ID
+            const vetLinkCode = generateVetLinkCode(newPet.id);
 
-                // Dueño
-                ownerId: petData.ownerId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-
-            },
+            // Paso 3: Actualizar mascota con código real
+            return await tx.pets.update({
+                where: { id: newPet.id },
+                data: { codeVetlink: vetLinkCode }
+            });
         });
-        return { success: true, message: "Mascota creada exitosamente." };
+        return {
+            success: true,
+            message: "Mascota creada exitosamente.",
+            code: result.codeVetlink
+        };
 
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error al crear mascota:", error);
-        return { success: false, message: "Error al crear la mascota." };
+
+        // Manejo específico de error de unicidad
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            (error as { code?: string }).code === 'P2002' &&
+            "meta" in error &&
+            (error as { meta?: { target?: string[] } }).meta?.target?.includes('codeVetlink')
+        ) {
+            return {
+                success: false,
+                message: "Error: Conflicto de código único. Intente nuevamente."
+            };
+        }
+
+        return {
+            success: false,
+            message: "Error al crear la mascota."
+        };
 
     }
 }

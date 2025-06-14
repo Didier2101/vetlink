@@ -62,11 +62,10 @@ export default async function PrivateLayout({
   };
 
 
-  console.log("data", userData)
   return (
     <div>
       <PrivateHeader userData={userData} />
-      <main className="max-w-5xl mx-auto pt-18 md:pt-28 min-h-screen">
+      <main className="max-w-5xl mx-auto pt-18 md:pt-28 min-h-screen px-4">
         {children}
       </main>
     </div>

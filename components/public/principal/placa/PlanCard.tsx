@@ -5,6 +5,7 @@ import { calculatePrice, getPeriodLabel, BillingType } from "@/src/utils/pricing
 import {
   Check,
   ShoppingCart,
+  UserPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PlanType } from "@/types/planType";
@@ -52,7 +53,7 @@ const PlanCard = ({ plan }: PlanCardProps) => {
 
 
   return (
-    <div className={`relative flex flex-col h-[600px] p-6 rounded-2xl border border-gray-200 dark:border-gray-700  hover:shadow-2xl transition-all duration-300 bg-white dark:bg-gray-900`}>
+    <div className={`relative  flex flex-col h-[600px] p-6 rounded-2xl border border-gray-200 dark:border-gray-700  hover:shadow-2xl transition-all duration-300 bg-white dark:bg-gray-900`}>
       {!plan.isFree && (
         <div className="absolute top-4 right-4  px-3 py-1 text-xs font-bold uppercase rounded-full bg-green-500 text-white shadow-md">
           3 meses gratis
@@ -72,32 +73,35 @@ const PlanCard = ({ plan }: PlanCardProps) => {
         {plan.description}
       </p>
 
-      {/* Selector mensual/anual solo si no es gratis */}
-      {!plan.isFree && (
-        <div className="mb-2">
-          <select
-            value={billingType}
-            onChange={(e) => setBillingType(e.target.value as BillingType)}
-            className="text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
-          >
-            <option value="MONTHLY">Mensual</option>
-            <option value="YEARLY">Anual</option>
-          </select>
+
+
+      <div className="flex items-center justify-between">
+        <div className="my-4 flex items-baseline space-x-2">
+          <span className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-teal-700 dark:from-white dark:via-blue-200 dark:to-teal-200 bg-clip-text text-transparent">
+            {plan.isFree
+              ? "Gratis"
+              : `$${calculatePrice(plan.price, billingType, plan.isFree).toLocaleString()}`}
+          </span>
+          <span className="text-gray-500 dark:text-gray-400 text-sm">
+            {getPeriodLabel(billingType, plan.isFree)}
+          </span>
         </div>
-      )}
+        {/* Selector mensual/anual solo si no es gratis */}
+        {!plan.isFree && (
+          <div className="mb-2">
+            <select
+              value={billingType}
+              onChange={(e) => setBillingType(e.target.value as BillingType)}
+              className="text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+            >
+              <option value="MONTHLY">Mensual</option>
+              <option value="YEARLY">Anual</option>
+            </select>
+          </div>
+        )}
 
-      <div className="my-4 flex items-baseline space-x-2">
-        <span className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-teal-700 dark:from-white dark:via-blue-200 dark:to-teal-200 bg-clip-text text-transparent">
-          {plan.isFree
-            ? "Gratis"
-            : `$${calculatePrice(plan.price, billingType, plan.isFree).toLocaleString()}`}
-        </span>
-        <span className="text-gray-500 dark:text-gray-400 text-sm">
-          {getPeriodLabel(billingType, plan.isFree)}
-        </span>
+
       </div>
-
-
 
       <div className="flex-1 overflow-y-auto mb-6 space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
         {plan.features?.map((fac) => (
@@ -113,17 +117,24 @@ const PlanCard = ({ plan }: PlanCardProps) => {
 
       <button
         onClick={handleRegisterClick}
-        className={`group relative w-full py-4 px-6 rounded-2xl text-white font-semibold transition-all duration-300 mt-auto shadow-lg hover:shadow-xl hover:scale-[1.02] overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800}`}
+        className="w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group mt-auto"
       >
-        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-        <span className="relative">
-          {roleName === "store"
-            ? "Registrar tienda"
-            : plan.title.includes("Premium")
-              ? "Contratar plan"
-              : "Registrarse"}
-        </span>
+        <div className="flex items-center justify-center gap-6 w-full">
+          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-gradient-to-br from-blue-100 to-teal-100 dark:from-blue-900/30 dark:to-teal-900/30 transition-all duration-300">
+            <span className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              {React.createElement(UserPlus, { size: 18 })} {/* Reemplaza SomeIcon */}
+            </span>
+          </div>
+          <span className="text-md md:text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+            {roleName === "store"
+              ? "Registrar tienda"
+              : plan.title.includes("Premium")
+                ? "Contratar plan"
+                : "Registrarse"}
+          </span>
+        </div>
       </button>
+
     </div>
   );
 };
