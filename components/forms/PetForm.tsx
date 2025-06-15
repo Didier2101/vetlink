@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import FormSidebar from "../privado/pets/PetRegistrationForm/components/FormSidebar";
 import { SectionNavigation } from "../privado/pets/PetRegistrationForm/components/SectionNavigation";
 import { BasicInfoSection } from "../privado/pets/PetRegistrationForm/sections/BasicInfoSection";
@@ -67,18 +68,33 @@ export const PetForm = ({ ownerId }: PetProps) => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="mt-10 md:mt-0 flex flex-col lg:flex-row gap-8 pb-20 md:pb-0">
+            {/* Sidebar a la izquierda */}
             <FormSidebar
                 sections={sections}
                 activeSection={activeSection}
                 setActiveSection={setActiveSection}
             />
 
-            <div className="h-[calc(100vh-130px)] overflow-y-auto flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+            {/* Contenido principal */}
+            <div className="flex-1 h-[calc(100vh-130px)] overflow-y-auto bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+
+                {/* Link arriba alineado correctamente */}
+                <div className="mb-6">
+                    <Link
+                        href="/owner/dashboard"
+                        className="inline-flex items-center text-sm font-medium text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition"
+                    >
+                        ← Volver al dashboard
+                    </Link>
+                </div>
+
+                {/* Formulario */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {renderSection()}
                 </form>
 
+                {/* Navegación por secciones */}
                 <SectionNavigation
                     activeSection={activeSection}
                     sections={sections}

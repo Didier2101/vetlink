@@ -1,10 +1,11 @@
 "use client";
 
-import { UserCircle, User, ChevronDown, Gift, Calendar, Crown } from "lucide-react";
+import { UserCircle, User, Gift, Calendar, Crown, } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "@/src/ui/LogoutButton";
 import { DropdownMenu } from "@/src/ui/DropdownMenu";
 import { PrivateLayoutUserData } from "@/types/UserData";
+import { capitalize } from "@/src/utils/format";
 
 export const UserDropdown = ({ user }: { user: PrivateLayoutUserData }) => {
     const getPlanIcon = () => {
@@ -53,12 +54,21 @@ export const UserDropdown = ({ user }: { user: PrivateLayoutUserData }) => {
     return (
         <DropdownMenu
             trigger={
-                <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                    <UserCircle className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-                    <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform" />
-                </div>
+                <button
+                    className="group relative p-2 rounded-2xl transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                    aria-label="Menú de usuario"
+                >
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white dark:bg-gray-800 shadow-md group-hover:shadow-lg transition-all duration-300">
+                        <div className="relative">
+                            <UserCircle
+                                size={20}
+                                className={`text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300`}
+                            />
+
+                        </div>
+                    </div>
+                </button>
             }
-            align="right"
         >
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {/* Sección de información del usuario */}
@@ -67,7 +77,7 @@ export const UserDropdown = ({ user }: { user: PrivateLayoutUserData }) => {
                         <UserCircle className="w-12 h-12 text-gray-700 dark:text-gray-300" />
                         <div className="flex-1 min-w-0">
                             <p className="font-medium text-gray-900 dark:text-white truncate">
-                                {user.ownerProfile?.name || 'Usuario'}
+                                {capitalize(user.ownerProfile?.name) || 'Usuario'}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
                                 {user.email}

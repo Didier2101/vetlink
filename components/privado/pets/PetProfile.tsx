@@ -7,7 +7,6 @@ import {
   FileText,
   Syringe,
   Shield,
-  ArrowLeft,
   Heart,
   Activity,
   Pill,
@@ -29,15 +28,14 @@ const PetProfile = async ({ petId }: PetProfileProps) => {
   }
 
   return (
-    <div className="pb-10 mt-6">
+    <div className="pb-10 mt-10 md:mt-0">
       {/* Header con botón de regreso */}
       <div className="mb-6">
         <Link
           href="/owner/dashboard"
-          className="inline-flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 mb-4 transition-colors"
+          className="inline-flex mb-4 items-center text-sm font-medium text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-200 transition"
         >
-          <ArrowLeft size={20} className="mr-2" />
-          Volver a mis mascotas
+          ← Volver a mis mascotas
         </Link>
 
         {/* Información principal de la mascota */}
