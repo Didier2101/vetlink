@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { FormSectionProps } from "../types";
 import { PawPrint } from "lucide-react";
 import { PetPhotoUploader } from "../components/PetPhotoUploader";
-import { FormInput } from "../components/FormInput";
-import { FormSelect } from "../components/FormSelect";
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { breedsData } from "@/src/data/breeds";
 import { PetFormData } from "@/schemas/pets/pet";
 import { colorOptions } from "@/src/data/colors";
+import { FormInput } from "@/src/ui/FormInput";
+import { FormSelect } from "@/src/ui/FormSelect";
 
 interface BasicInfoSectionProps extends FormSectionProps {
   selectedImageUrl?: string | null;

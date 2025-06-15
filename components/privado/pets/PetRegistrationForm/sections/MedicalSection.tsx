@@ -1,9 +1,10 @@
 import React from "react";
 import { FormSectionProps } from "../types";
 import { HeartPulse } from "lucide-react";
-import { FormCheckbox } from "../components/FormCheckbox";
-import { FormTextarea } from "../components/FormTextarea";
-import { FormInput } from "../components/FormInput";
+import { FormTextarea } from "@/src/ui/FormTextarea";
+import { FormInput } from "@/src/ui/FormInput";
+import { FormCheckbox } from "@/src/ui/FormCheckbox";
+
 
 export const MedicalSection = ({ register, errors }: FormSectionProps) => {
     return (
@@ -21,6 +22,7 @@ export const MedicalSection = ({ register, errors }: FormSectionProps) => {
                         label="¿Está esterilizado / castrado?"
                         name="sterilized"
                         register={register}
+                        error={errors.sterilized}
                     />
                 </div>
 

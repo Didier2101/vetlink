@@ -1,4 +1,4 @@
-import PetRegistrationForm from "@/components/privado/pets/PetRegistrationForm/PetRegistrationForm";
+import { PetForm } from "@/components/forms/PetForm";
 import { getSession } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import Loading from "@/src/ui/Loading";
@@ -22,7 +22,7 @@ const petsPage = () => {
   }
   return (
     <Suspense fallback={<Loading />}>
-      <PetRegistrationForm ownerId={ownerId} />
+      <PetForm ownerId={ownerId} />
     </Suspense>
   );
 };

@@ -1,8 +1,8 @@
 import React from "react";
 import { FormSectionProps } from "../types";
 import { Activity } from "lucide-react";
-import { FormTextarea } from "../components/FormTextarea";
-import { FormSelect } from "../components/FormSelect";
+import { FormTextarea } from "@/src/ui/FormTextarea";
+import { FormSelect } from "@/src/ui/FormSelect";
 
 export const BehaviorSection = ({ register, errors }: FormSectionProps) => {
     return (

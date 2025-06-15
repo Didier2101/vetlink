@@ -1,7 +1,9 @@
 import React from 'react'
 import { FormSectionProps } from '../types'
 import { Bone } from 'lucide-react'
-import { FormInput } from '../components/FormInput'
+import { FormInput } from '@/src/ui/FormInput'
+import { FormTextarea } from '@/src/ui/FormTextarea'
+import { FormSelect } from '@/src/ui/FormSelect'
 
 const CareSection = ({ register, errors }: FormSectionProps) => {
     return (
@@ -15,54 +17,37 @@ const CareSection = ({ register, errors }: FormSectionProps) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Horario de alimentación */}
+                {/* Horario de alimentación */}
                 <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Horario de alimentación
-                    </label>
-                    <textarea
-                        {...register("feedingSchedule")}
+                    <FormTextarea
+                        label="Horario de alimentación detallado"
+                        name="feedingSchedule"
+                        register={register}
+                        error={errors.feedingSchedule}
                         rows={3}
-                        className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 ${errors.feedingSchedule
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-600"
-                            }`}
-                        placeholder="Ej: 2 veces al día - 8am y 6pm"
+                        placeholder="Ej: Desayuno a las 7:30am - 1 taza de croquetas premium
+Almuerzo a las 2:00pm - 80g de comida húmeda
+Cena a las 8:00pm - 1 taza de croquetas con suplementos"
                     />
-                    {errors.feedingSchedule && (
-                        <p className="mt-1 text-sm text-red-500">
-                            {errors.feedingSchedule.message}
-                        </p>
-                    )}
                 </div>
 
                 {/* Tipo de dieta */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Tipo de dieta
-                    </label>
-                    <select
-                        {...register("diet")}
-                        className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 ${errors.diet
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-600"
-                            }`}
-                    >
-                        <option value="" disabled>
-                            {" "}
-                            Seleccionar{" "}
-                        </option>
-                        <option value="commercial"> Comercial(croquetas) </option>
-                        <option value="natural"> Natural(casera) </option>
-                        <option value="barf"> BARF(dieta cruda) </option>
-                        <option value="mixed"> Mixta </option>
-                        <option value="other"> Otra </option>
-                    </select>
-                    {errors.diet && (
-                        <p className="mt-1 text-sm text-red-500">
-                            {errors.diet.message}
-                        </p>
-                    )}
-                </div>
+                {/* Tipo de dieta */}
+                <FormSelect
+                    label="Tipo de dieta principal"
+                    name="diet"
+                    register={register}
+                    error={errors.diet}
+                    options={[
+                        { value: "", label: "Seleccionar", disabled: true },
+                        { value: "commercial", label: "Comercial (croquetas premium)" },
+                        { value: "natural", label: "Natural (casera balanceada)" },
+                        { value: "barf", label: "BARF (dieta cruda biológicamente apropiada)" },
+                        { value: "mixed", label: "Mixta (comercial + natural)" },
+                        { value: "prescription", label: "Dieta veterinaria (recetada)" },
+                        { value: "other", label: "Otra (especificar en observaciones)" }
+                    ]}
+                />
 
                 {/* Comida favorita */}
                 <FormInput

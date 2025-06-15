@@ -1,7 +1,7 @@
 import React from 'react'
 import { FormSectionProps } from '../types'
 import { User } from 'lucide-react'
-import { FormInput } from '../components/FormInput'
+import { FormInput } from '@/src/ui/FormInput'
 
 const IdentificationSection = ({ register, errors }: FormSectionProps) => {
     return (
@@ -21,6 +21,7 @@ const IdentificationSection = ({ register, errors }: FormSectionProps) => {
                     error={errors.microchipNumber}
                     placeholder="Ej: 985120001234567"
                 />
+
 
                 <FormInput
                     label="Código de tatuaje (Opcional)"
