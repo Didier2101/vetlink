@@ -12,9 +12,7 @@ export const registroSchema = z.object({
     terms: z.literal(true, {
         errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
     }),
-    role: z.enum(["clinic", "owner", "store", "veterinarian", "walker"], {
-        errorMap: () => ({ message: "Selecciona un rol válido" }),
-    }),
+    role: z.enum(["clinic", "owner", "store", "veterinarian", "walker"]),
 
     planId: z.number(),
 });

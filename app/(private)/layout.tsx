@@ -1,4 +1,4 @@
-import PrivateHeader from "@/components/privado/PrivateHeader";
+import PrivateHeader from "@/components/main/PrivateHeader";
 import { getSession } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import { redirect } from "next/navigation";

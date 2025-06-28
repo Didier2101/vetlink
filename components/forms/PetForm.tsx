@@ -77,7 +77,7 @@ export const PetForm = ({ ownerId }: PetProps) => {
             />
 
             {/* Contenido principal */}
-            <div className="flex-1 h-[calc(100vh-130px)] overflow-y-auto bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <div className="flex-1 max-h-[calc(100vh-130px)] overflow-y-auto bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
 
                 {/* Link arriba alineado correctamente */}
                 <div className="mb-6">

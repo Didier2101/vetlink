@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model PendingRegistrations {
+  id                Int      @id @default(autoincrement())
+  email             String   @unique @db.VarChar(255)
+  password          String   @db.VarChar(255)
+  planId            Int
+  role              String   @db.VarChar(50)
+  terms             Boolean
+  confirmationToken String   @db.VarChar(255)
+  tokenExpiresAt    DateTime @db.DateTime(0)
+  createdAt         DateTime @default(now()) @db.DateTime(0)
+
+  @@index([confirmationToken], name: "confirmationToken_index")
+}
+
 model features {
   id       Int       @id @default(autoincrement())
   name     String    @db.VarChar(255)

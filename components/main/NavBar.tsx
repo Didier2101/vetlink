@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { NavLinks } from "./NavLinks";
 import { Logo } from "@/src/ui/Logo";
 import { LoginButton } from "@/src/ui/LoginButton";
-import { ThemeToggle } from "../ThemeToggle";
+import { NavLinks } from "./NavLinks";
+import { ThemeToggle } from "../public/principal/ThemeToggle";
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);

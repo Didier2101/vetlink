@@ -16,39 +16,14 @@ interface PlanCardProps {
 }
 
 const PlanCard = ({ plan }: PlanCardProps) => {
+  const router = useRouter();
   const [billingType, setBillingType] = useState<BillingType>('MONTHLY');
 
-
-  const router = useRouter();
-  const roleName = plan.role;
-
-
-
   const handleRegisterClick = () => {
-    const finalPrice = calculatePrice(plan.price, billingType, plan.isFree);
-    const params = new URLSearchParams({
-      planId: plan.id.toString(),
-      role: plan.role,
-      planTitle: plan.title,
-      planBasePrice: plan.price.toString(), // solo por transparencia
-      planFinalPrice: finalPrice.toString(), // este es el precio real a cobrar
-      billingType: billingType, // MONTHLY o YEARLY
-      planDescription: plan.description,
-      planPeriod: getPeriodLabel(billingType, plan.isFree),
-      features: JSON.stringify(
-        plan.features?.map((f) => ({ name: f.name, id: f.id })) || []
-      ),
-    });
-    // Convertir URLSearchParams a un objeto para mejor visualización
-    // const paramsObj = Object.fromEntries(params.entries());
 
-    // console.log("Parámetros que se enviarán:", paramsObj);
-
-    // Si quieres ver también cómo queda la URL completa:
-    // const url = `/auth/register?${params.toString()}`;
-    // console.log("URL completa:", url);
-
-    router.push(`/auth/register?${params.toString()}`);
+    router.push(`/auth/register?planId=${plan.id}${plan.role}`);
+    console.log("Plan ID en card:", plan.id);
+    console.log("Role en card:", plan.role);
   };
 
 
@@ -126,11 +101,7 @@ const PlanCard = ({ plan }: PlanCardProps) => {
             </span>
           </div>
           <span className="text-md md:text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-            {roleName === "store"
-              ? "Registrar tienda"
-              : plan.title.includes("Premium")
-                ? "Contratar plan"
-                : "Registrarse"}
+            Registrarse
           </span>
         </div>
       </button>

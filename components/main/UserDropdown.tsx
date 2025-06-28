@@ -8,6 +8,24 @@ import { PrivateLayoutUserData } from "@/types/UserData";
 import { capitalize } from "@/src/utils/format";
 
 export const UserDropdown = ({ user }: { user: PrivateLayoutUserData }) => {
+    // Función para obtener la ruta del perfil según el rol
+    const getProfilePath = () => {
+        switch (user.role) {
+            case 'owner':
+                return `/owner/${user.ownerProfile?.id}`;
+            case 'veterinarian':
+                return `/vet/${user.veterinarianProfile?.id}`;
+            case 'clinic':
+                return `/clinic/${user.clinicProfile?.id}`;
+            case 'store':
+                return `/store/${user.storeProfile?.id}`;
+            case 'walker':
+                return `/walker/${user.walkerProfile?.id}`;
+            default:
+                return `/${user.id}`;
+        }
+    };
+
     const getPlanIcon = () => {
         if (user.plan.isFree) {
             return <Gift className="w-6 h-6 text-green-500" />;
@@ -134,16 +152,14 @@ export const UserDropdown = ({ user }: { user: PrivateLayoutUserData }) => {
                 </div>
 
                 {/* Acciones */}
-                <div className="p-2">
-                    <Link
-                        href="/profile"
-                        className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
-                    >
-                        <User className="w-5 h-5" />
-                        <span>Mi perfil</span>
-                    </Link>
-                    <LogoutButton />
-                </div>
+                <Link
+                    href={getProfilePath()}
+                    className="px-6 py-3 flex items-center gap-3 w-full  text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
+                >
+                    <User className="w-5 h-5" />
+                    <span>Mi perfil</span>
+                </Link>
+                <LogoutButton />
             </div>
         </DropdownMenu>
     );

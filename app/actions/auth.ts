@@ -13,6 +13,7 @@ const SESSION_DURATION = 60 * 60 * 24 * 30;
 
 
 
+
 export async function verifyEmail(token: string) {
     if (!token) {
         return {
@@ -22,8 +23,8 @@ export async function verifyEmail(token: string) {
     }
 
     try {
-        // Buscar usuario con este token y que no haya expirado
-        const user = await prisma.users.findFirst({
+        // 1. Buscar registro pendiente con este token
+        const pendingRegistration = await prisma.pendingRegistrations.findFirst({
             where: {
                 confirmationToken: token,
                 tokenExpiresAt: {
@@ -32,23 +33,46 @@ export async function verifyEmail(token: string) {
             },
         });
 
-        if (!user) {
+        if (!pendingRegistration) {
             return {
                 success: false,
                 message: "Token inválido o expirado. Por favor solicita un nuevo enlace de verificación.",
             };
         }
 
-        // Actualizar el usuario
-        await prisma.users.update({
-            where: {
-                id: user.id,
-            },
+        // 2. Verificar si el email ya está registrado (por si acaso)
+        const userExist = await prisma.users.findUnique({
+            where: { email: pendingRegistration.email },
+        });
+
+        if (userExist) {
+            // Eliminar el registro pendiente si ya existe el usuario
+            await prisma.pendingRegistrations.delete({
+                where: { id: pendingRegistration.id },
+            });
+            return {
+                success: false,
+                message: "Este email ya está registrado.",
+            };
+        }
+
+        // 3. Crear el usuario real
+        await prisma.users.create({
             data: {
+                email: pendingRegistration.email,
+                password: pendingRegistration.password,
+                planId: pendingRegistration.planId,
+                terms: pendingRegistration.terms,
                 emailConfirmed: true,
                 confirmationToken: null,
                 tokenExpiresAt: null,
-            },
+                createdAt: new Date(),
+            }
+        });
+
+        // 4. Eliminar el registro temporal
+        await prisma.pendingRegistrations.delete({
+            where: { id: pendingRegistration.id },
         });
 
         return {
@@ -64,7 +88,6 @@ export async function verifyEmail(token: string) {
     }
 }
 
-// Server Action para registrar usuario
 export async function registerUser(data: RegistroFormData) {
     const userData = {
         email: data.email,
@@ -74,15 +97,7 @@ export async function registerUser(data: RegistroFormData) {
         terms: data.terms
     };
 
-    // Validar que lleguen todos los datos requeridos
-    if (!userData) {
-        return {
-            success: false,
-            message: "Todos los campos son requeridos",
-        };
-
-    }
-
+    // Validación de campos requeridos
     if (!userData.email || !userData.password || !userData.planId || !userData.role || userData.terms === undefined) {
         return {
             success: false,
@@ -91,38 +106,36 @@ export async function registerUser(data: RegistroFormData) {
     }
 
     try {
-        // Verificar si el usuario ya existe
-        const userExist = await prisma.users.findUnique({
-            where: {
-                email: data.email,
-            },
-        });
+        // Verificar si el email ya está registrado o pendiente
+        const [existingUser, pendingRegistration] = await Promise.all([
+            prisma.users.findUnique({ where: { email: data.email } }),
+            prisma.pendingRegistrations.findUnique({ where: { email: data.email } })
+        ]);
 
-        if (userExist) {
+        if (existingUser || pendingRegistration) {
             return {
                 success: false,
-                message: "El email ya está registrado.",
+                message: "El email ya está registrado o pendiente de confirmación",
             };
         }
 
         // Hashear la contraseña
         const hashedPassword = await hash(userData.password, 10);
+
         // Generar token y fecha de expiración (24 horas)
         const confirmationToken = randomBytes(32).toString('hex');
         const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-        // Crear nuevo usuario en la base de datos
-        await prisma.users.create({
+        // Guardar en tabla temporal (NO en la tabla users)
+        await prisma.pendingRegistrations.create({
             data: {
                 email: userData.email,
                 password: hashedPassword,
                 planId: userData.planId,
+                role: userData.role,
                 terms: userData.terms,
-                // Nuevos campos para verificación
-                emailConfirmed: false,
                 confirmationToken,
-                tokenExpiresAt,
-                createdAt: new Date(),
+                tokenExpiresAt
             }
         });
 
@@ -131,17 +144,16 @@ export async function registerUser(data: RegistroFormData) {
 
         return {
             success: true,
-            message: "Usuario registrado exitosamente",
+            message: "Por favor verifica tu email para completar el registro. Revisa tu bandeja de entrada.",
         };
     } catch (error) {
         console.error("Error al registrar el usuario:", error);
         return {
             success: false,
-            message: "Error al registrar el usuario.",
+            message: "Error al procesar el registro. Por favor intenta nuevamente.",
         };
     }
 }
-
 
 
 
