@@ -2,13 +2,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Mail, Lock, Info, ShieldCheck } from "lucide-react";
+import { ArrowRight, Mail, Lock, ShieldCheck, HeartPulse, CalendarCheck, Users } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
 import { useCustomForm } from "@/hooks/useCustomForm";
 import { LoginFormData, loginSchema } from "@/schemas/auth/auth";
-import { loginUser, resendVerificationEmail } from "@/app/actions/auth";
+import { loginUser, resendVerificationEmail } from "@/actions/auth";
 import { FormInput } from "@/src/ui/FormInput";
 import { FormCheckbox } from "@/src/ui/FormCheckbox";
 import { FormButton } from "@/src/ui/FormButton";
@@ -16,7 +16,6 @@ import PageTitle from "@/src/ui/PageTitle";
 
 export const LoginForm = () => {
     const router = useRouter();
-    // const [rememberMe, setRememberMe] = useState(false);
 
     const {
         register,
@@ -31,29 +30,30 @@ export const LoginForm = () => {
             const result = await loginUser(loginData);
 
             if (!result.success) {
-                // Mensaje especial para email no verificado
                 if (result.message?.includes("verifica tu email")) {
                     return Swal.fire({
                         icon: "warning",
-                        title: "Verificación requerida",
+                        title: "Registro incompleto",
                         html: `
-              <div>
-                <p>${result.message}</p>
-                <p class="mt-3">¿No recibiste el correo?</p>
-                <button id="resend-btn" class="mt-2 px-4 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200">
-                  Reenviar correo de verificación
-                </button>
-              </div>
-            `,
-                        confirmButtonColor: "#3b82f6",
+                        <div>
+                            <p>${result.message}</p>
+                            <p class="mt-3 text-sm">¿No recibiste el correo de verificación?</p>
+                            <button id="resend-btn" class="mt-3 px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-md hover:opacity-90 transition-opacity">
+                                Reenviar correo
+                            </button>
+                        </div>
+                    `,
+                        showConfirmButton: false,
                         didOpen: () => {
                             document.getElementById('resend-btn')?.addEventListener('click', async () => {
                                 Swal.showLoading();
                                 const resendResult = await resendVerificationEmail(loginData.email);
                                 Swal.fire({
                                     icon: resendResult.success ? "success" : "error",
-                                    title: resendResult.success ? "Correo reenviado" : "Error",
+                                    title: resendResult.success ? "Correo enviado" : "Error",
                                     text: resendResult.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
                                 });
                             });
                         }
@@ -64,181 +64,202 @@ export const LoginForm = () => {
                     icon: "error",
                     title: "Error",
                     text: result.message,
-                    confirmButtonColor: "#ef4444",
+                    confirmButtonColor: "#3b82f6",
+                    background: "#ffffff",
+                    color: "#1f2937"
                 });
             }
 
-            // Éxito en el login
             Swal.fire({
                 icon: "success",
-                title: "Éxito",
+                title: "¡Bienvenido!",
                 text: result.message,
-                showConfirmButton: false,
                 timer: 1500,
-                background: "#f8fafc",
+                showConfirmButton: false,
+                background: "#ffffff",
+                color: "#1f2937"
             }).then(() => {
-                if (result.success) {
-                    const route = !result.user?.isProfileComplete
-                        ? `/${result.user?.role}/complete-profile`
-                        : `/${result.user.role}/dashboard`;
-                    router.push(route);
-                }
+                router.push(result.user?.isProfileComplete
+                    ? `/${result.user.role}/dashboard`
+                    : `/${result.user?.role}/complete-profile`
+                );
             });
         } catch (err) {
-            console.error("Error de inicio de sesión:", err);
+            console.error("Error:", err);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Ha ocurrido un error inesperado. Por favor, intenta nuevamente.",
-                confirmButtonColor: "#ef4444",
+                text: "Ocurrió un error inesperado",
+                confirmButtonColor: "#3b82f6",
+                background: "#ffffff",
+                color: "#1f2937"
             });
         }
     };
 
     return (
-        <div className="pb-10 mt-10 md:mt-0">
-            {/* Header centrado */}
-            <div className="text-center mb-12">
-                <PageTitle>Inicia sesion para comenzar</PageTitle>
-                <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    Conecta con los mejores profesionales para el cuidado de tu mascota
-                </p>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
-                <div className=" md:mb-4 w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">
-                        Beneficios de tu cuenta
-                    </h2>
-                    <div className="space-y-5">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 rounded-full bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
-                                <Info size={18} className="text-teal-600 dark:text-teal-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-medium text-gray-800 dark:text-white">
-                                    Historial completo
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                    Accede al historial médico completo de tus mascotas desde
-                                    cualquier dispositivo
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 rounded-full bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
-                                <Info size={18} className="text-teal-600 dark:text-teal-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-medium text-gray-800 dark:text-white">
-                                    Agenda inteligente
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                    Programa y gestiona citas con veterinarios y cuidadores
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 rounded-full bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
-                                <Info size={18} className="text-teal-600 dark:text-teal-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-medium text-gray-800 dark:text-white">
-                                    Comunidad exclusiva
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                    Conéctate con otros dueños de mascotas y profesionales
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className=" p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-100 dark:border-teal-900/30">
-                        <div className="flex items-center gap-3">
-                            <ShieldCheck
-                                size={24}
-                                className="text-teal-600 dark:text-teal-400 flex-shrink-0"
-                            />
-                            <span className="text-sm text-gray-600 dark:text-gray-300">
-                                Tus datos están protegidos con encriptación de última generación
-                            </span>
-                        </div>
-                    </div>
-
+        <div className="min-h-screen flex items-center justify-center ">
+            <div className="w-full max-w-6xl">
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <PageTitle className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-400 dark:to-blue-400">
+                        Inicia sesión para comenzar
+                    </PageTitle>
+                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mt-3">
+                        Conecta con los mejores profesionales para el cuidado de tu mascota
+                    </p>
                 </div>
 
-                {/* Formulario centrado */}
-                <div className="w-full max-w-md  bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-                        Ingresa a tu cuenta
-                    </h2>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                        <FormInput
-                            label="Correo electrónico"
-                            name="email"
-                            type="email"
-                            register={register}
-                            error={errors.email}
-                            placeholder="tucorreo@ejemplo.com"
-                            icon={Mail}
-                            required
-                        />
+                {/* Contenedor principal */}
+                <div className=" flex flex-col lg:flex-row gap-8 items-stretch">
+                    {/* Sección de beneficios */}
+                    <div className=" hidden md:flex flex-col w-full lg:w-1/2 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                            <HeartPulse className="text-teal-500" size={24} />
+                            <span>Beneficios exclusivos</span>
+                        </h2>
 
-                        <FormInput
-                            label="Contraseña"
-                            name="password"
-                            type="password"
-                            register={register}
-                            error={errors.password}
-                            placeholder="••••••••"
-                            icon={Lock}
-                            showPasswordToggle
-                            required
-                        />
+                        <div className="space-y-6">
+                            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <div className="p-3 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
+                                    <HeartPulse size={20} className="text-teal-600 dark:text-teal-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-lg text-gray-800 dark:text-white">
+                                        Historial médico completo
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                                        Accede al historial médico de tus mascotas desde cualquier dispositivo, con registros detallados de cada consulta.
+                                    </p>
+                                </div>
+                            </div>
 
-                        <div className="flex items-center justify-between">
-                            <FormCheckbox
-                                label="remember"
-                                name="remember"
+                            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
+                                    <CalendarCheck size={20} className="text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-lg text-gray-800 dark:text-white">
+                                        Agenda inteligente
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                                        Programa y gestiona citas con veterinarios y cuidadores, con recordatorios automáticos.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex-shrink-0">
+                                    <Users size={20} className="text-purple-600 dark:text-purple-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-lg text-gray-800 dark:text-white">
+                                        Comunidad exclusiva
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                                        Conéctate con otros dueños de mascotas y profesionales certificados en nuestra red.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 p-5 bg-gradient-to-r from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-xl border border-teal-100 dark:border-teal-800/50">
+                            <div className="flex items-center gap-4">
+                                <ShieldCheck
+                                    size={28}
+                                    className="text-teal-600 dark:text-teal-400 flex-shrink-0"
+                                />
+                                <div>
+                                    <h4 className="font-medium text-gray-800 dark:text-white">Seguridad garantizada</h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        Tus datos están protegidos con encriptación de última generación y protocolos de seguridad avanzados.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Formulario */}
+                    <div className="w-full lg:w-1/2 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                                Ingresa a tu cuenta
+                            </h2>
+                            <p className="text-gray-500 dark:text-gray-400">
+                                Introduce tus credenciales para acceder
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                            <FormInput
+                                label="Correo electrónico"
+                                name="email"
+                                type="email"
                                 register={register}
-                            >
-                                Recordar sesión
-                            </FormCheckbox>
+                                error={errors.email}
+                                placeholder="tucorreo@ejemplo.com"
+                                icon={Mail}
+                                required
+                                className="bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600"
+                            />
 
-                            <Link
-                                href="/forgot-password"
-                                className="text-sm font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
+                            <FormInput
+                                label="Contraseña"
+                                name="password"
+                                type="password"
+                                register={register}
+                                error={errors.password}
+                                placeholder="••••••••"
+                                icon={Lock}
+                                showPasswordToggle
+                                required
+                                className="bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600"
+                            />
+
+                            <div className="flex items-center justify-between">
+                                <FormCheckbox
+                                    label="remember"
+                                    name="remember"
+                                    register={register}
+                                    className="text-teal-600 dark:text-teal-400 focus:ring-teal-500"
+                                >
+                                    Recordar sesión
+                                </FormCheckbox>
+
+                                <Link
+                                    href="/forgot-password"
+                                    className="text-sm font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors"
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
+                            </div>
+
+                            <FormButton
+                                type="submit"
+                                size="lg"
+                                loading={isSubmitting}
+                                icon={ArrowRight}
+                                iconPosition="right"
+                                className="w-full py-3 text-lg font-semibold"
                             >
-                                ¿Olvidaste tu contraseña?
-                            </Link>
+                                Iniciar sesión
+                            </FormButton>
+                        </form>
+
+                        <div className="mt-8 text-center">
+                            <p className="text-gray-500 dark:text-gray-400">
+                                ¿No tienes una cuenta?{" "}
+                                <Link
+                                    href="/register"
+                                    className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors"
+                                >
+                                    Regístrate ahora
+                                </Link>
+                            </p>
                         </div>
-
-                        <FormButton
-                            type="submit"
-                            variant="primary"
-                            size="md"
-                            loading={isSubmitting}
-                            icon={ArrowRight}
-                            iconPosition="right"
-                            className="w-full"
-                        >
-                            Iniciar sesión
-                        </FormButton>
-                    </form>
-                    <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                        ¿No tienes una cuenta?{" "}
-                        <Link
-                            href="/register"
-                            className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
-                        >
-                            Regístrate ahora
-                        </Link>
                     </div>
                 </div>
             </div>
-
-
-
-
         </div>
     );
 };

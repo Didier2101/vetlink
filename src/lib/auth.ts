@@ -1,53 +1,51 @@
-// lib/auth.ts
-"use server"
+// src/lib/auth.ts
+"use server";
 
 import { cookies } from 'next/headers';
-import { decryptEdge } from './edge-crypto'; // Tu función original de Node.js crypto
+import { decryptEdge } from './edge-crypto';
 
-/**
- * Obtiene los datos de sesión del usuario actual
- * Para usar en componentes del servidor o Server Actions
- */
-export async function getSession() {
+export type SessionData = {
+    id: number;
+    email: string;
+    isProfileComplete: boolean;
+    role: string;
+};
+
+export async function getSession(): Promise<SessionData | null> {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session');
 
     if (!sessionCookie?.value) {
         return null;
     }
+
     try {
         const decryptedSession = await decryptEdge(sessionCookie.value);
-        const parsedSession = JSON.parse(decryptedSession);
-        return parsedSession;
+        return JSON.parse(decryptedSession) as SessionData;
     } catch (error) {
-        if (error instanceof Error) {
-        } else {
-            console.error('❌ ERROR AL DESENCRIPTAR:', error);
-        }
         console.error('Error al obtener sesión:', error);
         return null;
     }
 }
 
-/**
- * Verifica si el usuario actual está autenticado
- * Para usar en componentes del servidor o Server Actions
- */
-export async function isAuthenticated() {
+export async function isAuthenticated(): Promise<boolean> {
     const session = await getSession();
     return !!session;
 }
 
-/**
- * Cierra la sesión del usuario actual
- * Server Action para cerrar sesión
- */
-export async function logout() {
-    const cookieStore = await cookies();
-    cookieStore.delete('session');
-
-    return {
-        success: true,
-        message: 'Sesión cerrada con éxito'
-    };
+export async function logout(): Promise<{ success: boolean; message: string }> {
+    try {
+        const cookieStore = await cookies();
+        cookieStore.delete('session');
+        return {
+            success: true,
+            message: 'Sesión cerrada con éxito'
+        };
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        return {
+            success: false,
+            message: 'Error al cerrar sesión'
+        };
+    }
 }

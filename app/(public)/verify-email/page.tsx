@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { verifyEmail } from "../actions/auth";
+import { verifyEmail } from "../../actions/auth";
 
 export default function VerifyEmailPage() {
     const searchParams = useSearchParams();

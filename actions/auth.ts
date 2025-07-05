@@ -64,8 +64,6 @@ export async function verifyEmail(token: string) {
                 planId: pendingRegistration.planId,
                 terms: pendingRegistration.terms,
                 emailConfirmed: true,
-                confirmationToken: null,
-                tokenExpiresAt: null,
                 createdAt: new Date(),
             }
         });
@@ -160,7 +158,6 @@ export async function registerUser(data: RegistroFormData) {
 
 
 export async function loginUser(loginData: LoginFormData) {
-    // Verificamos que lleguen los datos
     if (!loginData) {
         return {
             success: false,
@@ -171,18 +168,14 @@ export async function loginUser(loginData: LoginFormData) {
     const { email, password } = loginData;
 
     try {
-        // Buscar el usuario por email con todas sus relaciones
+        // Buscar el usuario por email
         const user = await prisma.users.findUnique({
-            where: {
-                email: email,
-            },
+            where: { email },
             select: {
                 id: true,
                 email: true,
                 password: true,
-                emailConfirmed: true,
                 isProfileComplete: true,
-                planId: true,
                 plans: {
                     select: {
                         role: true,
@@ -191,27 +184,26 @@ export async function loginUser(loginData: LoginFormData) {
             }
         });
 
-
-        // Si no se encuentra el usuario
         if (!user) {
+            // Verificar si existe en registros pendientes
+            const pending = await prisma.pendingRegistrations.findUnique({
+                where: { email }
+            });
+
+            if (pending) {
+                return {
+                    success: false,
+                    message: "Por favor verifica tu email para completar el registro. Revisa tu bandeja de entrada.",
+                };
+            }
             return {
                 success: false,
                 message: "El Email no está registrado",
             };
         }
 
-
-        // Verificar si el email está confirmado
-        if (!user.emailConfirmed) {
-            return {
-                success: false,
-                message: "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada o solicita un nuevo enlace de verificación.",
-            };
-        }
         // Comparar contraseña
         const passwordMatch = await compare(password, user.password);
-
-        // Si la contraseña no coincide
         if (!passwordMatch) {
             return {
                 success: false,
@@ -219,27 +211,18 @@ export async function loginUser(loginData: LoginFormData) {
             };
         }
 
-
-
-
-
-        // Crear datos de sesión con toda la información necesaria
-        // Crear datos de sesión
+        // Crear sesión
         const sessionData = {
             id: user.id,
+            email: user.email,
+            role: user.plans.role,
+            isProfileComplete: user.isProfileComplete,
             createdAt: Date.now()
         };
 
-        // Crear o actualizar sesión
         const encryptedSession = await encryptEdge(JSON.stringify(sessionData));
-        // Encriptar datos de sesión
-
-
         const cookieStore = await cookies();
 
-        // Encriptar datos de sesión
-
-        // Establecer cookie de sesión
         cookieStore.set("session", encryptedSession, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -247,7 +230,9 @@ export async function loginUser(loginData: LoginFormData) {
             path: "/",
             sameSite: "lax",
         });
-        // Si todo está bien, devolvemos información para la redirección
+
+
+
         return {
             success: true,
             message: "Inicio de sesión exitoso",
@@ -268,75 +253,54 @@ export async function loginUser(loginData: LoginFormData) {
 }
 
 
-
 // app/actions/auth.ts
 export async function resendVerificationEmail(email: string) {
-    if (!email) {
-        return {
-            success: false,
-            message: "Email no proporcionado",
-        };
-    }
-
     try {
-        const user = await prisma.users.findUnique({
-            where: {
-                email,
-            },
-            select: {
-                id: true,
-                email: true,
-                emailConfirmed: true,
-                confirmationToken: true,
-                tokenExpiresAt: true,
-            },
+        // Verificar si ya es usuario registrado
+        const user = await prisma.users.findUnique({ where: { email } });
+        if (user) {
+            return {
+                success: false,
+                message: "Este email ya está registrado y verificado",
+            };
+        }
+
+        // Buscar registro pendiente
+        const pending = await prisma.pendingRegistrations.findUnique({
+            where: { email }
         });
 
-        if (!user) {
+        if (!pending) {
             return {
                 success: false,
-                message: "No existe una cuenta con este email",
+                message: "No hay registro pendiente para este email",
             };
         }
 
-        if (user.emailConfirmed) {
-            return {
-                success: false,
-                message: "Este email ya ha sido verificado",
-            };
-        }
+        // Generar nuevo token si el actual está por expirar
+        const newToken = randomBytes(32).toString('hex');
+        const newExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-        // Generar nuevo token si el anterior está expirado o no existe
-        let token = user.confirmationToken;
-        let expiresAt = user.tokenExpiresAt;
+        await prisma.pendingRegistrations.update({
+            where: { id: pending.id },
+            data: {
+                confirmationToken: newToken,
+                tokenExpiresAt: newExpiry
+            }
+        });
 
-        if (!token || !expiresAt || new Date() > expiresAt) {
-            token = randomBytes(32).toString('hex');
-            expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
-
-            await prisma.users.update({
-                where: {
-                    id: user.id,
-                },
-                data: {
-                    confirmationToken: token,
-                    tokenExpiresAt: expiresAt,
-                },
-            });
-        }
-
-        // Enviar email de verificación
-        await sendVerificationEmail(user.email, token);
+        // Enviar email
+        await sendVerificationEmail(email, newToken);
 
         return {
             success: true,
-            message: "Email de verificación reenviado. Por favor revisa tu bandeja de entrada.",
+            message: "Se ha reenviado el correo de verificación"
         };
     } catch (error) {
-        console.error("Error al reenviar email de verificación:", error);
+        console.error("Error al reenviar email:", error);
         return {
             success: false,
-            message: "Error al reenviar el email de verificación",
+            message: "Error al reenviar el correo de verificación"
         };
     }
 }

@@ -9,7 +9,7 @@ export const LoginButton = () => {
 
   return (
     <button
-      onClick={() => router.push("/auth/login")}
+      onClick={() => router.push("/login")}
       className="flex items-center px-4 py-3 rounded-xl gap-2 transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
     >
       <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-gradient-to-br from-blue-100 to-teal-100 dark:from-blue-900/30 dark:to-teal-900/30 transition-all duration-300">

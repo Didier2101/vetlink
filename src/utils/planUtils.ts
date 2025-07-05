@@ -1,51 +1,43 @@
 // src/utils/planUtils.ts
+interface PlanStatus {
+    status: "active" | "trial" | "expired";
+    message: string;
+    isTrial: boolean;
+}
 
-export const calculatePlanStatus = (plan: {
-    isTrial?: boolean;
-    trialPeriodDays?: number;
-    planStartedAt?: string;
+export function calculatePlanStatus({
+    isTrial,
+    trialEndsAt,
+    planExpiresAt,
+}: {
+    isTrial: boolean;
+    trialEndsAt?: string;
     planExpiresAt?: string;
-}) => {
-    if (!plan.planExpiresAt) {
+}): PlanStatus | null {
+    const now = new Date();
+    const trialEnd = trialEndsAt ? new Date(trialEndsAt) : null;
+    const planExpire = planExpiresAt ? new Date(planExpiresAt) : null;
+
+    if (isTrial && trialEnd && trialEnd > now) {
+        const daysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
-            status: "active",
-            message: "Plan activo sin fecha de expiración",
-            daysRemaining: Infinity,
-            isTrial: false
+            status: "trial",
+            message: `Prueba gratuita (${daysLeft} días restantes)`,
+            isTrial: true,
         };
     }
 
-    const now = new Date();
-    const expiresAt = new Date(plan.planExpiresAt);
-    const timeDiff = expiresAt.getTime() - now.getTime();
-    const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-    const isActive = daysRemaining > 0;
-    const isTrial = plan.isTrial || false;
-
-    let status = "active";
-    let message = "";
-
-    if (isTrial) {
-        if (isActive) {
-            message = `Prueba gratis - ${daysRemaining} día${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''}`;
-        } else {
-            status = "expired";
-            message = "Prueba gratis finalizada";
-        }
-    } else {
-        if (isActive) {
-            message = `Plan activo - ${daysRemaining} día${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''}`;
-        } else {
-            status = "expired";
-            message = "Plan expirado";
-        }
+    if (planExpire && planExpire > now) {
+        return {
+            status: "active",
+            message: "Plan activo",
+            isTrial: false,
+        };
     }
 
     return {
-        status,
-        message,
-        daysRemaining,
-        isTrial
+        status: "expired",
+        message: "Plan expirado",
+        isTrial: false,
     };
-};
+}

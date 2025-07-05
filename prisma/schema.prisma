@@ -62,9 +62,7 @@ model users {
   planExpiresAt     DateTime? @default(now()) @db.DateTime(0)
 
   // Nuevos campos para verificación de email
-  emailConfirmed    Boolean   @default(false)
-  confirmationToken String?   @db.VarChar(255)
-  tokenExpiresAt    DateTime? @db.DateTime(0)
+  emailConfirmed Boolean @default(false)
 
   owners owners?
   vets   vets?

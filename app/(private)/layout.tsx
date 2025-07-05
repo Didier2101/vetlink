@@ -1,7 +1,7 @@
 import PrivateHeader from "@/components/main/PrivateHeader";
 import { getSession } from "@/src/lib/auth";
-import { prisma } from "@/src/lib/prisma";
-import { redirect } from "next/navigation";
+import { roboto } from "@/src/lib/fonts";
+import "../globals.css";
 
 export default async function PrivateLayout({
   children,
@@ -9,65 +9,24 @@ export default async function PrivateLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  if (!session) redirect("/");
-
-  // Consulta optimizada para obtener todos los datos necesarios
-  const user = await prisma.users.findUnique({
-    where: { id: session.id },
-    select: {
-      id: true,
-      email: true,
-      planId: true,
-      terms: true,
-      isProfileComplete: true,
-      createdAt: true,
-      isTrial: true,
-      trialStartedAt: true,
-      trialEndsAt: true,
-      planStartedAt: true,
-      planExpiresAt: true,
-      owners: true,  // Incluye datos de owner si existe
-      plans: {       // Incluye todos los datos del plan
-        include: {
-          features: true  // Incluye las características del plan
-        }
-      }
-    }
-  });
-
-  if (!user) {
-    redirect("/auth/logout");
+  if (!session) {
+    // Redirigir a la página de inicio de sesión si no hay sesión
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-">
+        <p className="text-lg text-gray-700">Por favor, inicia sesión para continuar.</p>
+      </div>
+    );
   }
-
-  // Determinar el rol del usuario
-  // Determinar el rol del usuario
-  const userRole = user.owners ? 'owner' : 'unknown';
-
-
-  // Estructura de datos para el header
-  const userData = {
-    id: user.id,
-    email: user.email,
-    isProfileComplete: user.isProfileComplete,
-    role: userRole,
-    plan: {
-      ...user.plans,
-      isTrial: user.isTrial ?? false,
-      trialStartedAt: user.trialStartedAt,
-      trialEndsAt: user.trialEndsAt,
-      planStartedAt: user.planStartedAt,
-      planExpiresAt: user.planExpiresAt
-    },
-    ownerProfile: user.owners || null
-  };
 
 
   return (
-    <div>
-      <PrivateHeader userData={userData} />
-      <main className="max-w-5xl mx-auto pt-18 md:pt-28 min-h-screen px-4">
-        {children}
-      </main>
-    </div>
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${roboto.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300  pt-18 md:pt-22 min-h-screen `}>
+        <PrivateHeader session={session} />
+        <main className="max-w-7xl mx-auto px-4">
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

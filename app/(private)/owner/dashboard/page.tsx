@@ -1,5 +1,4 @@
 import Dashboard from "@/components/privado/owner/Dashboard";
-import Banner from "@/components/public/principal/Banner";
 import { getSession } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
 import Loading from "@/src/ui/Loading";
@@ -55,7 +54,6 @@ const DashBoardOwnerPage = async () => {
 
   return (
     <Suspense fallback={<Loading />}>
-      <Banner />
       <Dashboard
         pets={userData.owners.pets}
         userPlan={userData.plans}

@@ -23,6 +23,7 @@ interface DashboardProps {
 
 const Dashboard = ({ pets, userPlan }: DashboardProps) => {
 
+
   // Usamos directamente maxPets del plan
   const petLimit = userPlan.maxPets;
   const currentPetCount = pets.length;

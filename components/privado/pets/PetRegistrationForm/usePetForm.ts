@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { createPet } from "@/app/actions/pets";
+import { createPet } from "@/actions/pets";
 import { PetFormData, petSchema } from "@/schemas/pets/pet";
-import { useImageUpload } from "@/app/hooks/useImageUpload";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 const usePetForm = (ownerId: number) => {
 

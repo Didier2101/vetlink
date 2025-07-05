@@ -12,7 +12,7 @@ import {
   Pill,
 } from "lucide-react";
 import Link from "next/link";
-import { getPetById } from "@/app/actions/pets";
+import { getPetById } from "@/actions/pets";
 import { FaCamera } from "react-icons/fa";
 import { calculatePetAge, formatDate } from "@/src/utils/formatDate";
 

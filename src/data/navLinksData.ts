@@ -1,5 +1,5 @@
 // src/components/navbar/navLinksData.ts
-import { Home, Tag, PawPrint } from "lucide-react";
+import { Home, Tag, PawPrint, CreditCard } from "lucide-react";
 import { ComponentType } from "react";
 
 export interface NavLinkItem {
@@ -21,6 +21,12 @@ export const navLinks: NavLinkItem[] = [
     name: "Placa",
     href: "/placa",
     icon: Tag,
+    iconSize: 18
+  },
+  {
+    name: "Planes",
+    href: "/plans",
+    icon: CreditCard,
     iconSize: 18
   },
   {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { resendVerificationEmail } from "@/app/actions/auth";
+import { resendVerificationEmail } from "@/actions/auth";
 
 export default function ResendVerificationPage() {
     const [email, setEmail] = useState("");
